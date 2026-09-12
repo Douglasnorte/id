@@ -46,6 +46,16 @@ export default function PendingList({ category, employees, eventsFor, isOffToday
   const styles = STATUS_STYLES[category]
   const isLunch = category === 'lunch'
 
+  const departments = useMemo(() => {
+    const set = new Set(
+      employees
+        .filter((e) => e.active && e.department)
+        .map((e) => e.department as string),
+    )
+    return Array.from(set).sort()
+  }, [employees])
+  const [deptFilter, setDeptFilter] = useState<string>('all')
+
   const [now, setNow] = useState(() => Date.now())
   useEffect(() => {
     if (!isLunch) return
@@ -56,6 +66,7 @@ export default function PendingList({ category, employees, eventsFor, isOffToday
   const rows = useMemo(() => {
     return employees
       .filter((e) => e.active)
+      .filter((e) => deptFilter === 'all' || e.department === deptFilter)
       .map((employee) => {
         const events = eventsFor(employee.id)
         const firstEvent = events.find((e) => e.event_type === firstType) ?? null
@@ -82,7 +93,7 @@ export default function PendingList({ category, employees, eventsFor, isOffToday
         }
         return a.employee.name.localeCompare(b.employee.name)
       })
-  }, [employees, eventsFor, firstType, secondType, isLunch, now, isOffToday])
+  }, [employees, eventsFor, firstType, secondType, isLunch, now, isOffToday, deptFilter])
 
   const counts = useMemo(() => {
     return {
@@ -97,9 +108,25 @@ export default function PendingList({ category, employees, eventsFor, isOffToday
 
   return (
     <div className="rounded-2xl bg-white p-5 shadow-sm">
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-base font-semibold text-slate-900">Situação de hoje</h2>
-        <span className="text-xs text-slate-400">{counts.total} colaboradores ativos</span>
+        <div className="flex items-center gap-2">
+          {departments.length > 1 && (
+            <select
+              value={deptFilter}
+              onChange={(e) => setDeptFilter(e.target.value)}
+              className="rounded-lg border border-slate-300 px-2 py-1 text-xs text-slate-600"
+            >
+              <option value="all">Todos os departamentos</option>
+              {departments.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+          )}
+          <span className="text-xs text-slate-400">{counts.total} colaboradores ativos</span>
+        </div>
       </div>
 
       <div className={`mb-4 grid grid-cols-2 gap-2 ${isLunch ? 'sm:grid-cols-5' : 'sm:grid-cols-4'}`}>

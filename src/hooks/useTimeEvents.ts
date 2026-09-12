@@ -3,6 +3,18 @@ import { supabase } from '../lib/supabaseClient'
 import { endOfTodayIso, startOfTodayIso } from '../lib/dateUtils'
 import { CATEGORY_EVENTS, type Employee, type EventCategory, type ScanSource, type TimeEvent, type TimeEventType } from '../types'
 
+export interface ExportedTimeEvent {
+  event_type: TimeEventType
+  event_time: string
+  source: ScanSource
+  employees: {
+    name: string
+    badge_code: string | null
+    department: string | null
+    shift_group: string | null
+  } | null
+}
+
 export function nextEventFor(events: TimeEvent[], category: EventCategory): TimeEventType | null {
   const [first, second] = CATEGORY_EVENTS[category]
   const hasFirst = events.some((e) => e.event_type === first)
@@ -79,4 +91,25 @@ export function useTimeEvents() {
   }
 
   return { events, loading, error, reload, eventsFor, registerEvent }
+}
+
+/**
+ * Busca batidas de um período para exportação (independente do estado do
+ * hook, que só mantém o dia de hoje em memória).
+ */
+export async function fetchEventsForExport(
+  category: EventCategory,
+  startIso: string,
+  endIso: string,
+): Promise<{ data?: ExportedTimeEvent[]; error?: string }> {
+  const { data, error } = await supabase
+    .from('time_events')
+    .select('event_type, event_time, source, employees(name, badge_code, department, shift_group)')
+    .in('event_type', CATEGORY_EVENTS[category])
+    .gte('event_time', startIso)
+    .lte('event_time', endIso)
+    .order('event_time', { ascending: true })
+
+  if (error) return { error: error.message }
+  return { data: data as unknown as ExportedTimeEvent[] }
 }
