@@ -26,6 +26,9 @@ para bipar vários colaboradores em sequência) ou digitação manual.
 - Na aba **Controle de almoço**, cada colaborador que está almoçando mostra um
   cronômetro ao vivo desde a saída; passando de 1h o tempo fica em vermelho
   com aviso de estouro, e um contador "Acima de 1h" aparece no topo.
+- A lista de pendências pode ser filtrada por departamento (ex.: SVC AM vs.
+  SVC PM) quando há mais de um cadastrado, e cada aba de ponto tem um botão
+  **Exportar CSV** para baixar as batidas de um período (padrão: hoje).
 - A tabela `employee_schedules` já está criada no banco para o uso futuro de
   escalas estruturadas por colaborador — ainda sem tela própria, só a
   estrutura no banco. Enquanto isso, a escala de cada um pode ser guardada

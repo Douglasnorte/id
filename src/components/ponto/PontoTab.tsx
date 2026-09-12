@@ -2,6 +2,7 @@ import { lazy, Suspense, useState } from 'react'
 import ScannerInput from './ScannerInput'
 import ScanFeed, { ScanResult } from './ScanFeed'
 import PendingList from './PendingList'
+import ExportButton from './ExportButton'
 import { extractBadgeCode } from '../../lib/badgeCode'
 import { todayLabel } from '../../lib/dateUtils'
 import { CATEGORY_EVENTS } from '../../types'
@@ -95,6 +96,8 @@ export default function PontoTab({ category, heading, employees, eventsFor, isOf
                 Câmera do celular
               </button>
             </div>
+
+            <ExportButton category={category} />
           </div>
 
           <ScannerInput
