@@ -2,6 +2,16 @@ import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import type { Employee } from '../types'
 
+export interface EmployeeInput {
+  badge_code?: string | null
+  name: string
+  department?: string | null
+  role?: string | null
+  shift_group?: string | null
+  shift_label?: string | null
+  notes?: string | null
+}
+
 export function useEmployees() {
   const [employees, setEmployees] = useState<Employee[]>([])
   const [loading, setLoading] = useState(true)
@@ -36,18 +46,14 @@ export function useEmployees() {
     }
   }, [reload])
 
-  async function createEmployee(input: {
-    badge_code: string
-    name: string
-    department?: string | null
-    role?: string | null
-    notes?: string | null
-  }) {
+  async function createEmployee(input: EmployeeInput) {
     const { error: err } = await supabase.from('employees').insert({
-      badge_code: input.badge_code,
+      badge_code: input.badge_code || null,
       name: input.name,
       department: input.department || null,
       role: input.role || null,
+      shift_group: input.shift_group || null,
+      shift_label: input.shift_label || null,
       notes: input.notes || null,
     })
     if (!err) await reload()
@@ -56,7 +62,9 @@ export function useEmployees() {
 
   async function updateEmployee(
     id: string,
-    changes: Partial<Pick<Employee, 'name' | 'badge_code' | 'department' | 'role' | 'notes' | 'active'>>,
+    changes: Partial<
+      Pick<Employee, 'name' | 'badge_code' | 'department' | 'role' | 'shift_group' | 'shift_label' | 'notes' | 'active'>
+    >,
   ) {
     const { error: err } = await supabase.from('employees').update(changes).eq('id', id)
     if (!err) await reload()
@@ -67,5 +75,21 @@ export function useEmployees() {
     return updateEmployee(id, { active })
   }
 
-  return { employees, loading, error, reload, createEmployee, updateEmployee, setActive }
+  /** Insere vários colaboradores de uma vez (importação por CSV). */
+  async function importEmployees(inputs: EmployeeInput[]) {
+    const rows = inputs.map((input) => ({
+      badge_code: input.badge_code || null,
+      name: input.name,
+      department: input.department || null,
+      role: input.role || null,
+      shift_group: input.shift_group || null,
+      shift_label: input.shift_label || null,
+      notes: input.notes || null,
+    }))
+    const { error: err } = await supabase.from('employees').insert(rows)
+    if (!err) await reload()
+    return err
+  }
+
+  return { employees, loading, error, reload, createEmployee, updateEmployee, setActive, importEmployees }
 }

@@ -21,7 +21,7 @@ export default function EmployeeList({ employees, onEdit, onToggleActive }: Prop
       if (!term) return true
       return (
         e.name.toLowerCase().includes(term) ||
-        e.badge_code.includes(term) ||
+        (e.badge_code ?? '').includes(term) ||
         (e.department ?? '').toLowerCase().includes(term)
       )
     })
@@ -65,7 +65,9 @@ export default function EmployeeList({ employees, onEdit, onToggleActive }: Prop
           <tbody className="divide-y divide-slate-100">
             {rows.map((employee) => (
               <tr key={employee.id}>
-                <td className="py-2 font-mono text-slate-600">{employee.badge_code}</td>
+                <td className="py-2 font-mono text-slate-600">
+                  {employee.badge_code ?? <span className="rounded bg-amber-100 px-1.5 py-0.5 font-sans text-xs text-amber-700">Pendente</span>}
+                </td>
                 <td className="py-2 font-medium text-slate-800">{employee.name}</td>
                 <td className="py-2 text-slate-500">{employee.department ?? '—'}</td>
                 <td className="py-2 text-slate-500">{employee.role ?? '—'}</td>

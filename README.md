@@ -17,21 +17,38 @@ para bipar vários colaboradores em sequência) ou digitação manual.
   esperada para aquele colaborador no dia: **Entrada → Saída p/ almoço →
   Volta do almoço → Saída**. Também é possível forçar manualmente o tipo de
   batida na tela "Registrar ponto".
-- A aba **Registrar ponto** é separada da aba **Colaboradores**, como pedido:
-  a primeira é a tela usada no dia a dia para bipar/registrar; a segunda é o
-  cadastro e a gestão de quem está ativo ou não.
+- Três abas: **Entrada/Saída** e **Controle de almoço** são independentes uma
+  da outra (cada uma só acompanha o próprio par de eventos), e **Colaboradores**
+  é o cadastro/gestão de quem está ativo ou não.
 - Colaboradores marcados como **inativos** somem da lista de pendências/status
   do dia e não conseguem mais bater ponto (a leitura retorna aviso de
   "colaborador inativo").
+- Na aba **Controle de almoço**, cada colaborador que está almoçando mostra um
+  cronômetro ao vivo desde a saída; passando de 1h o tempo fica em vermelho
+  com aviso de estouro, e um contador "Acima de 1h" aparece no topo.
 - A tabela `employee_schedules` já está criada no banco para o uso futuro de
-  escalas por colaborador — ainda sem tela própria, só a estrutura no banco.
+  escalas estruturadas por colaborador — ainda sem tela própria, só a
+  estrutura no banco. Enquanto isso, a escala de cada um pode ser guardada
+  como texto livre (`shift_group`/`shift_label`) no próprio cadastro, inclusive
+  via importação por CSV.
+
+### Importar colaboradores por CSV
+
+Na aba **Colaboradores → Importar CSV**, suba um arquivo com as colunas
+`cracha, nome, departamento, cargo, turno, escala, observacoes` (cabeçalho
+livre de acentos/maiúsculas). Só **nome** é obrigatório — colaboradores sem
+crachá entram como "Pendente" e podem ser completados depois pela edição.
+O app mostra uma prévia com erros (linha sem nome, crachá duplicado) antes de
+confirmar a importação. Um modelo pode ser baixado direto na tela.
 
 ## 1. Configurar o Supabase
 
 1. Crie um projeto em [supabase.com](https://supabase.com).
 2. No **SQL Editor**, execute o conteúdo de [`supabase/schema.sql`](supabase/schema.sql).
    Isso cria as tabelas `employees`, `time_events`, `employee_schedules` e as
-   políticas de RLS (só usuários autenticados leem/gravam dados).
+   políticas de RLS (só usuários autenticados leem/gravam dados). O arquivo é
+   seguro para rodar de novo em um banco já existente (ele aplica só o que
+   ainda faltar, como colunas novas).
 3. Em **Authentication → Users**, crie um (ou mais) usuário para quem vai
    operar o ponto (RH, recepção, etc.). Não há autocadastro pelo app — os
    logins são criados manualmente no painel.

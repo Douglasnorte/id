@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { CATEGORY_EVENTS, Employee, EventCategory, TimeEvent } from '../../types'
 import { formatTime } from '../../lib/dateUtils'
 
@@ -28,10 +28,27 @@ const STATUS_STYLES: Record<EventCategory, Record<StatusKey, string>> = {
   },
 }
 
+const LUNCH_LIMIT_MS = 60 * 60 * 1000
+
+function formatDuration(ms: number): string {
+  const totalMin = Math.max(0, Math.round(ms / 60000))
+  const h = Math.floor(totalMin / 60)
+  const m = totalMin % 60
+  return h > 0 ? `${h}h${m.toString().padStart(2, '0')}` : `${m}min`
+}
+
 export default function PendingList({ category, employees, eventsFor }: Props) {
   const [firstType, secondType] = CATEGORY_EVENTS[category]
   const meta = STATUS_META[category]
   const styles = STATUS_STYLES[category]
+  const isLunch = category === 'lunch'
+
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    if (!isLunch) return
+    const id = setInterval(() => setNow(Date.now()), 15000)
+    return () => clearInterval(id)
+  }, [isLunch])
 
   const rows = useMemo(() => {
     return employees
@@ -44,7 +61,13 @@ export default function PendingList({ category, employees, eventsFor }: Props) {
         const statusKey: StatusKey = !firstEvent ? 'notArrived' : !secondEvent ? 'in' : 'done'
         const lastEvent = secondEvent ?? firstEvent
 
-        return { employee, statusKey, lastEvent }
+        const durationMs =
+          isLunch && firstEvent
+            ? (secondEvent ? new Date(secondEvent.event_time).getTime() : now) - new Date(firstEvent.event_time).getTime()
+            : null
+        const overLimit = durationMs !== null && durationMs >= LUNCH_LIMIT_MS
+
+        return { employee, statusKey, lastEvent, durationMs, overLimit }
       })
       .sort((a, b) => {
         if (a.statusKey !== b.statusKey) {
@@ -53,7 +76,7 @@ export default function PendingList({ category, employees, eventsFor }: Props) {
         }
         return a.employee.name.localeCompare(b.employee.name)
       })
-  }, [employees, eventsFor, firstType, secondType])
+  }, [employees, eventsFor, firstType, secondType, isLunch, now])
 
   const counts = useMemo(() => {
     return {
@@ -61,6 +84,7 @@ export default function PendingList({ category, employees, eventsFor }: Props) {
       notArrived: rows.filter((r) => r.statusKey === 'notArrived').length,
       in: rows.filter((r) => r.statusKey === 'in').length,
       done: rows.filter((r) => r.statusKey === 'done').length,
+      overLimit: rows.filter((r) => r.statusKey === 'in' && r.overLimit).length,
     }
   }, [rows])
 
@@ -71,10 +95,11 @@ export default function PendingList({ category, employees, eventsFor }: Props) {
         <span className="text-xs text-slate-400">{counts.total} colaboradores ativos</span>
       </div>
 
-      <div className="mb-4 grid grid-cols-3 gap-2">
+      <div className={`mb-4 grid gap-2 ${isLunch ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-3'}`}>
         <StatBox label={meta.notArrived} value={counts.notArrived} />
         <StatBox label={meta.in} value={counts.in} />
         <StatBox label={meta.done} value={counts.done} />
+        {isLunch && <StatBox label="Acima de 1h" value={counts.overLimit} warn={counts.overLimit > 0} />}
       </div>
 
       <div className="max-h-96 overflow-y-auto">
@@ -83,16 +108,17 @@ export default function PendingList({ category, employees, eventsFor }: Props) {
             <tr>
               <th className="pb-2">Colaborador</th>
               <th className="pb-2">Status</th>
+              {isLunch && <th className="pb-2">Tempo de almoço</th>}
               <th className="pb-2">Última batida</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {rows.map(({ employee, statusKey, lastEvent }) => (
+            {rows.map(({ employee, statusKey, lastEvent, durationMs, overLimit }) => (
               <tr key={employee.id}>
                 <td className="py-2">
                   <div className="font-medium text-slate-800">{employee.name}</div>
                   <div className="text-xs text-slate-400">
-                    {employee.department ?? '—'} · crachá {employee.badge_code}
+                    {employee.department ?? '—'} · crachá {employee.badge_code ?? '—'}
                   </div>
                 </td>
                 <td className="py-2">
@@ -100,12 +126,24 @@ export default function PendingList({ category, employees, eventsFor }: Props) {
                     {meta[statusKey]}
                   </span>
                 </td>
+                {isLunch && (
+                  <td className="py-2">
+                    {durationMs === null ? (
+                      '—'
+                    ) : (
+                      <span className={overLimit ? 'font-semibold text-red-600' : 'text-slate-600'}>
+                        {formatDuration(durationMs)}
+                        {overLimit && ' ⚠ estourou'}
+                      </span>
+                    )}
+                  </td>
+                )}
                 <td className="py-2 text-slate-500">{lastEvent ? formatTime(lastEvent.event_time) : '—'}</td>
               </tr>
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={3} className="py-6 text-center text-slate-400">
+                <td colSpan={isLunch ? 4 : 3} className="py-6 text-center text-slate-400">
                   Nenhum colaborador ativo cadastrado.
                 </td>
               </tr>
@@ -117,11 +155,11 @@ export default function PendingList({ category, employees, eventsFor }: Props) {
   )
 }
 
-function StatBox({ label, value }: { label: string; value: number }) {
+function StatBox({ label, value, warn }: { label: string; value: number; warn?: boolean }) {
   return (
-    <div className="rounded-xl bg-slate-50 px-3 py-2 text-center">
-      <div className="text-lg font-semibold text-slate-800">{value}</div>
-      <div className="text-xs text-slate-500">{label}</div>
+    <div className={`rounded-xl px-3 py-2 text-center ${warn ? 'bg-red-50' : 'bg-slate-50'}`}>
+      <div className={`text-lg font-semibold ${warn ? 'text-red-600' : 'text-slate-800'}`}>{value}</div>
+      <div className={`text-xs ${warn ? 'text-red-500' : 'text-slate-500'}`}>{label}</div>
     </div>
   )
 }

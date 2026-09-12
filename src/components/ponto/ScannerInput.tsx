@@ -39,9 +39,7 @@ export default function ScannerInput({ onSubmit, active, eventOptions }: Props) 
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
       <div>
-        <label className="mb-1 block text-sm font-medium text-slate-700">
-          Bipe o crachá (leitor 2D) ou digite o número
-        </label>
+        <label className="mb-1 block text-sm font-medium text-slate-700">Bipe o crachá ou digite o número</label>
         <input
           ref={inputRef}
           type="text"
@@ -49,7 +47,6 @@ export default function ScannerInput({ onSubmit, active, eventOptions }: Props) 
           onChange={(e) => setValue(e.target.value)}
           onBlur={refocus}
           autoFocus
-          placeholder="{12345} ou 12345"
           className="w-full rounded-lg border border-slate-300 px-4 py-3 text-lg tracking-wide focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
         />
       </div>
