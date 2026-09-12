@@ -117,3 +117,7 @@ create policy "time_events_insert_authenticated" on public.time_events
 drop policy if exists "employee_schedules_all_authenticated" on public.employee_schedules;
 create policy "employee_schedules_all_authenticated" on public.employee_schedules
   for all to authenticated using (true) with check (true);
+
+-- Garante que a API (PostgREST) enxergue imediatamente colunas/tabelas novas
+-- criadas acima, sem esperar o refresh automático do cache de schema.
+notify pgrst, 'reload schema';
