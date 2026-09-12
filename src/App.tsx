@@ -6,11 +6,11 @@ import { useAuth } from './hooks/useAuth'
 import { useEmployees } from './hooks/useEmployees'
 import { useTimeEvents } from './hooks/useTimeEvents'
 
-type Tab = 'ponto' | 'colaboradores'
+type Tab = 'entrada-saida' | 'almoco' | 'colaboradores'
 
 export default function App() {
   const { session, loading, signIn, signOut } = useAuth()
-  const [tab, setTab] = useState<Tab>('ponto')
+  const [tab, setTab] = useState<Tab>('entrada-saida')
 
   const employeesState = useEmployees()
   const timeEventsState = useTimeEvents()
@@ -33,15 +33,18 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-100">
       <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
           <div className="flex items-center gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-lg text-white">⏱</div>
             <span className="font-semibold text-slate-900">Ponto de Colaboradores</span>
           </div>
 
           <nav className="flex rounded-lg bg-slate-100 p-1 text-sm">
-            <TabButton active={tab === 'ponto'} onClick={() => setTab('ponto')}>
-              Registrar ponto
+            <TabButton active={tab === 'entrada-saida'} onClick={() => setTab('entrada-saida')}>
+              Entrada/Saída
+            </TabButton>
+            <TabButton active={tab === 'almoco'} onClick={() => setTab('almoco')}>
+              Almoço
             </TabButton>
             <TabButton active={tab === 'colaboradores'} onClick={() => setTab('colaboradores')}>
               Colaboradores
@@ -58,13 +61,25 @@ export default function App() {
       </header>
 
       <main className="mx-auto max-w-6xl px-4 py-6">
-        {tab === 'ponto' ? (
+        {tab === 'entrada-saida' && (
           <PontoTab
+            category="shift"
+            heading="Entrada/Saída"
             employees={employeesState.employees}
             eventsFor={timeEventsState.eventsFor}
             registerEvent={timeEventsState.registerEvent}
           />
-        ) : (
+        )}
+        {tab === 'almoco' && (
+          <PontoTab
+            category="lunch"
+            heading="Controle de almoço"
+            employees={employeesState.employees}
+            eventsFor={timeEventsState.eventsFor}
+            registerEvent={timeEventsState.registerEvent}
+          />
+        )}
+        {tab === 'colaboradores' && (
           <EmployeesTab
             employees={employeesState.employees}
             createEmployee={employeesState.createEmployee}

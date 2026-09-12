@@ -1,19 +1,15 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { endOfTodayIso, startOfTodayIso } from '../lib/dateUtils'
-import type { Employee, ScanSource, TimeEvent, TimeEventType } from '../types'
+import { CATEGORY_EVENTS, type Employee, type EventCategory, type ScanSource, type TimeEvent, type TimeEventType } from '../types'
 
-const NEXT_EVENT: Record<TimeEventType, TimeEventType | null> = {
-  check_in: 'lunch_out',
-  lunch_out: 'lunch_in',
-  lunch_in: 'check_out',
-  check_out: null,
-}
-
-export function nextEventFor(events: TimeEvent[]): TimeEventType | null {
-  if (events.length === 0) return 'check_in'
-  const last = events[events.length - 1]
-  return NEXT_EVENT[last.event_type]
+export function nextEventFor(events: TimeEvent[], category: EventCategory): TimeEventType | null {
+  const [first, second] = CATEGORY_EVENTS[category]
+  const hasFirst = events.some((e) => e.event_type === first)
+  if (!hasFirst) return first
+  const hasSecond = events.some((e) => e.event_type === second)
+  if (!hasSecond) return second
+  return null
 }
 
 export function useTimeEvents() {
@@ -59,13 +55,15 @@ export function useTimeEvents() {
   async function registerEvent(
     employee: Employee,
     source: ScanSource,
+    category: EventCategory,
     overrideType?: TimeEventType,
   ): Promise<{ event?: TimeEvent; error?: string }> {
     const todaysEvents = eventsFor(employee.id)
-    const type = overrideType ?? nextEventFor(todaysEvents)
+    const type = overrideType ?? nextEventFor(todaysEvents, category)
 
     if (!type) {
-      return { error: `${employee.name} já concluiu todas as batidas de hoje.` }
+      const what = category === 'lunch' ? 'o almoço' : 'a entrada/saída'
+      return { error: `${employee.name} já concluiu ${what} de hoje.` }
     }
 
     const { data, error: err } = await supabase

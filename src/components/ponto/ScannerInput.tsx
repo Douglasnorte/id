@@ -1,9 +1,10 @@
 import { FormEvent, useEffect, useRef, useState } from 'react'
-import { EVENT_LABELS, EVENT_ORDER, TimeEventType } from '../../types'
+import { EVENT_LABELS, TimeEventType } from '../../types'
 
 interface Props {
   onSubmit: (rawScan: string, overrideType: TimeEventType | null) => void
   active: boolean
+  eventOptions: TimeEventType[]
 }
 
 /**
@@ -11,7 +12,7 @@ interface Props {
  * teclado e envia Enter ao final da leitura) e também a digitação manual do
  * número do crachá.
  */
-export default function ScannerInput({ onSubmit, active }: Props) {
+export default function ScannerInput({ onSubmit, active, eventOptions }: Props) {
   const [value, setValue] = useState('')
   const [overrideType, setOverrideType] = useState<TimeEventType | ''>('')
   const inputRef = useRef<HTMLInputElement>(null)
@@ -61,7 +62,7 @@ export default function ScannerInput({ onSubmit, active }: Props) {
           className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm"
         >
           <option value="">Automático (recomendado)</option>
-          {EVENT_ORDER.map((type) => (
+          {eventOptions.map((type) => (
             <option key={type} value={type}>
               {EVENT_LABELS[type]}
             </option>

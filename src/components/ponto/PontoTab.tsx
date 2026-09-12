@@ -4,16 +4,20 @@ import ScanFeed, { ScanResult } from './ScanFeed'
 import PendingList from './PendingList'
 import { extractBadgeCode } from '../../lib/badgeCode'
 import { todayLabel } from '../../lib/dateUtils'
-import type { Employee, ScanSource, TimeEvent, TimeEventType } from '../../types'
+import { CATEGORY_EVENTS } from '../../types'
+import type { Employee, EventCategory, ScanSource, TimeEvent, TimeEventType } from '../../types'
 
 type Mode = 'leitor' | 'camera'
 
 interface Props {
+  category: EventCategory
+  heading: string
   employees: Employee[]
   eventsFor: (employeeId: string) => TimeEvent[]
   registerEvent: (
     employee: Employee,
     source: ScanSource,
+    category: EventCategory,
     overrideType?: TimeEventType,
   ) => Promise<{ event?: TimeEvent; error?: string }>
 }
@@ -22,7 +26,7 @@ const MAX_FEED_ITEMS = 15
 
 const CameraScanner = lazy(() => import('./CameraScanner'))
 
-export default function PontoTab({ employees, eventsFor, registerEvent }: Props) {
+export default function PontoTab({ category, heading, employees, eventsFor, registerEvent }: Props) {
   const [mode, setMode] = useState<Mode>('leitor')
   const [results, setResults] = useState<ScanResult[]>([])
 
@@ -47,7 +51,7 @@ export default function PontoTab({ employees, eventsFor, registerEvent }: Props)
       return
     }
 
-    const { event, error } = await registerEvent(employee, source, overrideType ?? undefined)
+    const { event, error } = await registerEvent(employee, source, category, overrideType ?? undefined)
     if (error) {
       pushResult({ ok: false, employeeName: employee.name, message: error })
       return
@@ -68,7 +72,7 @@ export default function PontoTab({ employees, eventsFor, registerEvent }: Props)
         <div className="rounded-2xl bg-white p-5 shadow-sm">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
             <div>
-              <h2 className="text-base font-semibold text-slate-900">Registrar ponto</h2>
+              <h2 className="text-base font-semibold text-slate-900">{heading}</h2>
               <p className="text-sm capitalize text-slate-400">{todayLabel()}</p>
             </div>
 
@@ -94,6 +98,7 @@ export default function PontoTab({ employees, eventsFor, registerEvent }: Props)
 
           <ScannerInput
             active={mode === 'leitor'}
+            eventOptions={CATEGORY_EVENTS[category]}
             onSubmit={(raw, overrideType) => handleScan(raw, 'scanner', overrideType)}
           />
           {mode === 'camera' && (
@@ -110,7 +115,7 @@ export default function PontoTab({ employees, eventsFor, registerEvent }: Props)
       </div>
 
       <div className="lg:col-span-2">
-        <PendingList employees={employees} eventsFor={eventsFor} />
+        <PendingList category={category} employees={employees} eventsFor={eventsFor} />
       </div>
     </div>
   )
