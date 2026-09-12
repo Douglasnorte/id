@@ -37,3 +37,14 @@ export const EVENT_LABELS: Record<TimeEventType, string> = {
 }
 
 export const EVENT_ORDER: TimeEventType[] = ['check_in', 'lunch_out', 'lunch_in', 'check_out']
+
+/**
+ * Entrada/Saída e Almoço são abas independentes: cada uma só acompanha o
+ * próprio par de eventos, sem depender da outra ter sido concluída.
+ */
+export type EventCategory = 'shift' | 'lunch'
+
+export const CATEGORY_EVENTS: Record<EventCategory, [TimeEventType, TimeEventType]> = {
+  shift: ['check_in', 'check_out'],
+  lunch: ['lunch_out', 'lunch_in'],
+}
