@@ -97,7 +97,7 @@ export default function PontoTab({ category, heading, employees, eventsFor, isOf
               </button>
             </div>
 
-            <ExportButton category={category} />
+            <ExportButton key={mode} category={category} />
           </div>
 
           <ScannerInput
