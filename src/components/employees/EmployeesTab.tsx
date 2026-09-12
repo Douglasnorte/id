@@ -2,7 +2,9 @@ import { useState } from 'react'
 import EmployeeForm, { EmployeeFormValues } from './EmployeeForm'
 import EmployeeList from './EmployeeList'
 import ImportCsv from './ImportCsv'
+import ImportShiftCalendar from './ImportShiftCalendar'
 import type { EmployeeInput } from '../../hooks/useEmployees'
+import type { ShiftCalendarInput } from '../../hooks/useShiftCalendar'
 import type { Employee } from '../../types'
 
 interface Props {
@@ -16,11 +18,19 @@ interface Props {
   ) => Promise<{ message: string } | null>
   setActive: (id: string, active: boolean) => Promise<{ message: string } | null>
   importEmployees: (rows: EmployeeInput[]) => Promise<{ message: string } | null>
+  importCalendar: (rows: ShiftCalendarInput[]) => Promise<{ message: string } | null>
 }
 
-type Panel = 'none' | 'form' | 'import'
+type Panel = 'none' | 'form' | 'import' | 'importCalendar'
 
-export default function EmployeesTab({ employees, createEmployee, updateEmployee, setActive, importEmployees }: Props) {
+export default function EmployeesTab({
+  employees,
+  createEmployee,
+  updateEmployee,
+  setActive,
+  importEmployees,
+  importCalendar,
+}: Props) {
   const [panel, setPanel] = useState<Panel>('none')
   const [editing, setEditing] = useState<Employee | null>(null)
 
@@ -56,6 +66,11 @@ export default function EmployeesTab({ employees, createEmployee, updateEmployee
     if (err) return err.message
   }
 
+  async function handleImportCalendar(rows: ShiftCalendarInput[]): Promise<string | void> {
+    const err = await importCalendar(rows)
+    if (err) return err.message
+  }
+
   async function handleToggleActive(employee: Employee) {
     await setActive(employee.id, !employee.active)
   }
@@ -68,7 +83,13 @@ export default function EmployeesTab({ employees, createEmployee, updateEmployee
           <p className="text-sm text-slate-500">Cadastre colaboradores e gerencie quem está ativo.</p>
         </div>
         {panel === 'none' && (
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setPanel('importCalendar')}
+              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            >
+              Importar calendário (DSR)
+            </button>
             <button
               onClick={() => setPanel('import')}
               className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
@@ -98,6 +119,10 @@ export default function EmployeesTab({ employees, createEmployee, updateEmployee
 
       {panel === 'import' && (
         <ImportCsv employees={employees} onImport={handleImport} onClose={() => setPanel('none')} />
+      )}
+
+      {panel === 'importCalendar' && (
+        <ImportShiftCalendar onImport={handleImportCalendar} onClose={() => setPanel('none')} />
       )}
 
       <EmployeeList employees={employees} onEdit={openEdit} onToggleActive={handleToggleActive} />

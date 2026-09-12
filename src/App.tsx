@@ -5,6 +5,7 @@ import EmployeesTab from './components/employees/EmployeesTab'
 import { useAuth } from './hooks/useAuth'
 import { useEmployees } from './hooks/useEmployees'
 import { useTimeEvents } from './hooks/useTimeEvents'
+import { useShiftCalendar } from './hooks/useShiftCalendar'
 
 type Tab = 'entrada-saida' | 'almoco' | 'colaboradores'
 
@@ -14,6 +15,7 @@ export default function App() {
 
   const employeesState = useEmployees()
   const timeEventsState = useTimeEvents()
+  const shiftCalendarState = useShiftCalendar()
 
   if (loading) {
     return <div className="flex min-h-screen items-center justify-center text-slate-400">Carregando...</div>
@@ -67,6 +69,7 @@ export default function App() {
             heading="Entrada/Saída"
             employees={employeesState.employees}
             eventsFor={timeEventsState.eventsFor}
+            isOffToday={shiftCalendarState.isOffToday}
             registerEvent={timeEventsState.registerEvent}
           />
         )}
@@ -76,6 +79,7 @@ export default function App() {
             heading="Controle de almoço"
             employees={employeesState.employees}
             eventsFor={timeEventsState.eventsFor}
+            isOffToday={shiftCalendarState.isOffToday}
             registerEvent={timeEventsState.registerEvent}
           />
         )}
@@ -86,6 +90,7 @@ export default function App() {
             updateEmployee={employeesState.updateEmployee}
             setActive={employeesState.setActive}
             importEmployees={employeesState.importEmployees}
+            importCalendar={shiftCalendarState.importCalendar}
           />
         )}
       </main>

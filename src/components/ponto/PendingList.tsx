@@ -6,13 +6,14 @@ interface Props {
   category: EventCategory
   employees: Employee[]
   eventsFor: (employeeId: string) => TimeEvent[]
+  isOffToday: (department: string | null, shiftGroup: string | null) => boolean
 }
 
-type StatusKey = 'notArrived' | 'in' | 'done'
+type StatusKey = 'notArrived' | 'in' | 'done' | 'off'
 
 const STATUS_META: Record<EventCategory, Record<StatusKey, string>> = {
-  shift: { notArrived: 'Não chegou', in: 'Presente', done: 'Concluído' },
-  lunch: { notArrived: 'Não saiu', in: 'Em almoço', done: 'Voltou' },
+  shift: { notArrived: 'Não chegou', in: 'Presente', done: 'Concluído', off: 'Folga (DSR)' },
+  lunch: { notArrived: 'Não saiu', in: 'Em almoço', done: 'Voltou', off: 'Folga (DSR)' },
 }
 
 const STATUS_STYLES: Record<EventCategory, Record<StatusKey, string>> = {
@@ -20,11 +21,13 @@ const STATUS_STYLES: Record<EventCategory, Record<StatusKey, string>> = {
     notArrived: 'bg-slate-100 text-slate-600',
     in: 'bg-emerald-100 text-emerald-700',
     done: 'bg-slate-200 text-slate-700',
+    off: 'bg-sky-100 text-sky-700',
   },
   lunch: {
     notArrived: 'bg-slate-100 text-slate-600',
     in: 'bg-amber-100 text-amber-700',
     done: 'bg-emerald-100 text-emerald-700',
+    off: 'bg-sky-100 text-sky-700',
   },
 }
 
@@ -37,7 +40,7 @@ function formatDuration(ms: number): string {
   return h > 0 ? `${h}h${m.toString().padStart(2, '0')}` : `${m}min`
 }
 
-export default function PendingList({ category, employees, eventsFor }: Props) {
+export default function PendingList({ category, employees, eventsFor, isOffToday }: Props) {
   const [firstType, secondType] = CATEGORY_EVENTS[category]
   const meta = STATUS_META[category]
   const styles = STATUS_STYLES[category]
@@ -58,7 +61,10 @@ export default function PendingList({ category, employees, eventsFor }: Props) {
         const firstEvent = events.find((e) => e.event_type === firstType) ?? null
         const secondEvent = events.find((e) => e.event_type === secondType) ?? null
 
-        const statusKey: StatusKey = !firstEvent ? 'notArrived' : !secondEvent ? 'in' : 'done'
+        let statusKey: StatusKey = !firstEvent ? 'notArrived' : !secondEvent ? 'in' : 'done'
+        if (statusKey === 'notArrived' && isOffToday(employee.department, employee.shift_group)) {
+          statusKey = 'off'
+        }
         const lastEvent = secondEvent ?? firstEvent
 
         const durationMs =
@@ -71,12 +77,12 @@ export default function PendingList({ category, employees, eventsFor }: Props) {
       })
       .sort((a, b) => {
         if (a.statusKey !== b.statusKey) {
-          const order: StatusKey[] = ['in', 'notArrived', 'done']
+          const order: StatusKey[] = ['in', 'notArrived', 'done', 'off']
           return order.indexOf(a.statusKey) - order.indexOf(b.statusKey)
         }
         return a.employee.name.localeCompare(b.employee.name)
       })
-  }, [employees, eventsFor, firstType, secondType, isLunch, now])
+  }, [employees, eventsFor, firstType, secondType, isLunch, now, isOffToday])
 
   const counts = useMemo(() => {
     return {
@@ -84,6 +90,7 @@ export default function PendingList({ category, employees, eventsFor }: Props) {
       notArrived: rows.filter((r) => r.statusKey === 'notArrived').length,
       in: rows.filter((r) => r.statusKey === 'in').length,
       done: rows.filter((r) => r.statusKey === 'done').length,
+      off: rows.filter((r) => r.statusKey === 'off').length,
       overLimit: rows.filter((r) => r.statusKey === 'in' && r.overLimit).length,
     }
   }, [rows])
@@ -95,10 +102,11 @@ export default function PendingList({ category, employees, eventsFor }: Props) {
         <span className="text-xs text-slate-400">{counts.total} colaboradores ativos</span>
       </div>
 
-      <div className={`mb-4 grid gap-2 ${isLunch ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-3'}`}>
+      <div className={`mb-4 grid grid-cols-2 gap-2 ${isLunch ? 'sm:grid-cols-5' : 'sm:grid-cols-4'}`}>
         <StatBox label={meta.notArrived} value={counts.notArrived} />
         <StatBox label={meta.in} value={counts.in} />
         <StatBox label={meta.done} value={counts.done} />
+        <StatBox label={meta.off} value={counts.off} />
         {isLunch && <StatBox label="Acima de 1h" value={counts.overLimit} warn={counts.overLimit > 0} />}
       </div>
 
@@ -118,7 +126,9 @@ export default function PendingList({ category, employees, eventsFor }: Props) {
                 <td className="py-2">
                   <div className="font-medium text-slate-800">{employee.name}</div>
                   <div className="text-xs text-slate-400">
-                    {employee.department ?? '—'} · crachá {employee.badge_code ?? '—'}
+                    {employee.department ?? '—'}
+                    {employee.shift_group ? ` · escala ${employee.shift_group}` : ''} · crachá{' '}
+                    {employee.badge_code ?? '—'}
                   </div>
                 </td>
                 <td className="py-2">

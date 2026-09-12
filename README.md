@@ -41,6 +41,18 @@ crachá entram como "Pendente" e podem ser completados depois pela edição.
 O app mostra uma prévia com erros (linha sem nome, crachá duplicado) antes de
 confirmar a importação. Um modelo pode ser baixado direto na tela.
 
+### Importar calendário de escalas (DSR) e pendências por escala
+
+Em times com escala revezada (ex.: 4 grupos A/B/C/D, cada um de folga em dias
+diferentes), a lista de pendências da aba **Entrada/Saída** (e **Almoço**)
+não deve cobrar quem está de folga hoje. Em **Colaboradores → Importar
+calendário (DSR)**, suba um CSV com as colunas `data, departamento, escala,
+dsr` (uma linha por combinação de data + departamento + escala; `dsr` aceita
+sim/nao, true/false ou 1/0). Isso cruza com o `departamento` e `shift_group`
+de cada colaborador — quem está de folga aparece como **"Folga (DSR)"** em
+vez de "Não chegou". Reimportar uma mesma data/departamento/escala substitui
+o valor anterior, então dá para importar mês a mês.
+
 ## 1. Configurar o Supabase
 
 1. Crie um projeto em [supabase.com](https://supabase.com).

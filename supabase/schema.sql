@@ -91,12 +91,32 @@ create table if not exists public.employee_schedules (
 create index if not exists employee_schedules_employee_idx on public.employee_schedules (employee_id);
 
 -- ---------------------------------------------------------------------
+-- Calendário de escalas (quem tem DSR/folga em cada dia)
+-- Uma linha por combinação (data, departamento, grupo de escala).
+-- department/shift_group usam os mesmos valores de employees.department
+-- e employees.shift_group (ex.: "SVC AM" + "A"), para cruzar direto com
+-- o colaborador na tela de pendências.
+-- ---------------------------------------------------------------------
+create table if not exists public.shift_calendar (
+  id uuid primary key default gen_random_uuid(),
+  work_date date not null,
+  department text not null,
+  shift_group text not null,
+  is_dsr boolean not null default false,
+  created_at timestamptz not null default now(),
+  unique (work_date, department, shift_group)
+);
+
+create index if not exists shift_calendar_date_idx on public.shift_calendar (work_date);
+
+-- ---------------------------------------------------------------------
 -- Row Level Security — acesso apenas para usuários autenticados
 -- (a equipe que opera o ponto faz login com uma conta Supabase Auth)
 -- ---------------------------------------------------------------------
 alter table public.employees enable row level security;
 alter table public.time_events enable row level security;
 alter table public.employee_schedules enable row level security;
+alter table public.shift_calendar enable row level security;
 
 drop policy if exists "employees_select_authenticated" on public.employees;
 create policy "employees_select_authenticated" on public.employees
@@ -116,6 +136,10 @@ create policy "time_events_insert_authenticated" on public.time_events
 
 drop policy if exists "employee_schedules_all_authenticated" on public.employee_schedules;
 create policy "employee_schedules_all_authenticated" on public.employee_schedules
+  for all to authenticated using (true) with check (true);
+
+drop policy if exists "shift_calendar_all_authenticated" on public.shift_calendar;
+create policy "shift_calendar_all_authenticated" on public.shift_calendar
   for all to authenticated using (true) with check (true);
 
 -- Garante que a API (PostgREST) enxergue imediatamente colunas/tabelas novas
