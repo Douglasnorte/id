@@ -8,15 +8,26 @@ create extension if not exists pgcrypto;
 -- ---------------------------------------------------------------------
 create table if not exists public.employees (
   id uuid primary key default gen_random_uuid(),
-  badge_code text not null unique,        -- número extraído do crachá/LMS: {12345} -> "12345"
+  -- número extraído do crachá/LMS: {12345} -> "12345". Fica nulo para
+  -- colaboradores importados via CSV que ainda não tiveram o crachá lido.
+  badge_code text unique,
   name text not null,
   department text,
   role text,
+  -- dados de escala vindos da planilha de escalas (texto livre por ora —
+  -- a tabela employee_schedules abaixo é para quando isso virar estruturado).
+  shift_group text,   -- ex.: grupo/turno "A", "B", "C", "D"
+  shift_label text,   -- ex.: "5x2 - 01:30 as 10:48"
   active boolean not null default true,
   notes text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+-- Reexecutar em um banco já existente: garante que essas colunas/ajustes existam.
+alter table public.employees alter column badge_code drop not null;
+alter table public.employees add column if not exists shift_group text;
+alter table public.employees add column if not exists shift_label text;
 
 create index if not exists employees_active_idx on public.employees (active);
 create index if not exists employees_badge_code_idx on public.employees (badge_code);

@@ -6,6 +6,8 @@ export interface EmployeeFormValues {
   name: string
   department: string
   role: string
+  shift_group: string
+  shift_label: string
   notes: string
 }
 
@@ -15,7 +17,15 @@ interface Props {
   onSubmit: (values: EmployeeFormValues) => Promise<string | void>
 }
 
-const EMPTY: EmployeeFormValues = { badge_code: '', name: '', department: '', role: '', notes: '' }
+const EMPTY: EmployeeFormValues = {
+  badge_code: '',
+  name: '',
+  department: '',
+  role: '',
+  shift_group: '',
+  shift_label: '',
+  notes: '',
+}
 
 export default function EmployeeForm({ initial, onCancel, onSubmit }: Props) {
   const [values, setValues] = useState<EmployeeFormValues>(EMPTY)
@@ -25,10 +35,12 @@ export default function EmployeeForm({ initial, onCancel, onSubmit }: Props) {
   useEffect(() => {
     if (initial) {
       setValues({
-        badge_code: initial.badge_code,
+        badge_code: initial.badge_code ?? '',
         name: initial.name,
         department: initial.department ?? '',
         role: initial.role ?? '',
+        shift_group: initial.shift_group ?? '',
+        shift_label: initial.shift_label ?? '',
         notes: initial.notes ?? '',
       })
     } else {
@@ -52,12 +64,11 @@ export default function EmployeeForm({ initial, onCancel, onSubmit }: Props) {
       </h2>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Número do crachá (LMS)" required>
+        <Field label="Número do crachá (LMS)">
           <input
-            required
             value={values.badge_code}
             onChange={(e) => setValues((v) => ({ ...v, badge_code: e.target.value.replace(/\D/g, '') }))}
-            placeholder="Ex: 12345 (o número dentro de { })"
+            placeholder="Opcional — pode preencher depois"
             className="input"
           />
         </Field>
@@ -83,6 +94,24 @@ export default function EmployeeForm({ initial, onCancel, onSubmit }: Props) {
           <input
             value={values.role}
             onChange={(e) => setValues((v) => ({ ...v, role: e.target.value }))}
+            className="input"
+          />
+        </Field>
+
+        <Field label="Turno/grupo da escala">
+          <input
+            value={values.shift_group}
+            onChange={(e) => setValues((v) => ({ ...v, shift_group: e.target.value }))}
+            placeholder="Ex: A, B, C, D"
+            className="input"
+          />
+        </Field>
+
+        <Field label="Descrição da escala">
+          <input
+            value={values.shift_label}
+            onChange={(e) => setValues((v) => ({ ...v, shift_label: e.target.value }))}
+            placeholder="Ex: 5x2 - 01:30 as 10:48"
             className="input"
           />
         </Field>

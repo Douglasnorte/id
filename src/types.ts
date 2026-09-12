@@ -1,9 +1,11 @@
 export interface Employee {
   id: string
-  badge_code: string
+  badge_code: string | null
   name: string
   department: string | null
   role: string | null
+  shift_group: string | null
+  shift_label: string | null
   active: boolean
   notes: string | null
   created_at: string

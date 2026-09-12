@@ -85,6 +85,7 @@ export default function App() {
             createEmployee={employeesState.createEmployee}
             updateEmployee={employeesState.updateEmployee}
             setActive={employeesState.setActive}
+            importEmployees={employeesState.importEmployees}
           />
         )}
       </main>
