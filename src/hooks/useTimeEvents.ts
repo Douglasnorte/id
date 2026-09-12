@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { endOfTodayIso, startOfTodayIso } from '../lib/dateUtils'
 import { CATEGORY_EVENTS, type Employee, type EventCategory, type ScanSource, type TimeEvent, type TimeEventType } from '../types'
@@ -47,15 +47,25 @@ export function useTimeEvents() {
     setLoading(false)
   }, [])
 
+  const reloadTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   useEffect(() => {
     reload()
 
+    // Várias pessoas bipando ao mesmo tempo disparam vários eventos seguidos
+    // — agrupa tudo numa única busca em vez de refazer a lista repetidas vezes.
+    function scheduleReload() {
+      if (reloadTimeout.current) clearTimeout(reloadTimeout.current)
+      reloadTimeout.current = setTimeout(reload, 500)
+    }
+
     const channel = supabase
       .channel('time-events-changes')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'time_events' }, () => reload())
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'time_events' }, scheduleReload)
       .subscribe()
 
     return () => {
+      if (reloadTimeout.current) clearTimeout(reloadTimeout.current)
       supabase.removeChannel(channel)
     }
   }, [reload])
