@@ -14,6 +14,7 @@ interface Props {
   heading: string
   employees: Employee[]
   eventsFor: (employeeId: string) => TimeEvent[]
+  isOffToday: (department: string | null, shiftGroup: string | null) => boolean
   registerEvent: (
     employee: Employee,
     source: ScanSource,
@@ -26,7 +27,7 @@ const MAX_FEED_ITEMS = 15
 
 const CameraScanner = lazy(() => import('./CameraScanner'))
 
-export default function PontoTab({ category, heading, employees, eventsFor, registerEvent }: Props) {
+export default function PontoTab({ category, heading, employees, eventsFor, isOffToday, registerEvent }: Props) {
   const [mode, setMode] = useState<Mode>('leitor')
   const [results, setResults] = useState<ScanResult[]>([])
 
@@ -115,7 +116,7 @@ export default function PontoTab({ category, heading, employees, eventsFor, regi
       </div>
 
       <div className="lg:col-span-2">
-        <PendingList category={category} employees={employees} eventsFor={eventsFor} />
+        <PendingList category={category} employees={employees} eventsFor={eventsFor} isOffToday={isOffToday} />
       </div>
     </div>
   )
