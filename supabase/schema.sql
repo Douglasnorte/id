@@ -39,12 +39,17 @@ create trigger employees_set_updated_at
 -- ---------------------------------------------------------------------
 -- Eventos de ponto (registro imutável de cada batida)
 -- ---------------------------------------------------------------------
-create type public.time_event_type as enum (
-  'check_in',    -- entrada
-  'lunch_out',   -- saída para almoço
-  'lunch_in',    -- volta do almoço
-  'check_out'    -- saída
-);
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'time_event_type') then
+    create type public.time_event_type as enum (
+      'check_in',    -- entrada
+      'lunch_out',   -- saída para almoço
+      'lunch_in',    -- volta do almoço
+      'check_out'    -- saída
+    );
+  end if;
+end $$;
 
 create table if not exists public.time_events (
   id uuid primary key default gen_random_uuid(),
@@ -56,7 +61,7 @@ create table if not exists public.time_events (
 );
 
 create index if not exists time_events_employee_idx on public.time_events (employee_id, event_time desc);
-create index if not exists time_events_day_idx on public.time_events ((event_time::date));
+create index if not exists time_events_event_time_idx on public.time_events (event_time);
 
 -- ---------------------------------------------------------------------
 -- Escalas dos colaboradores (uso futuro — sem UI ainda)
