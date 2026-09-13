@@ -26,7 +26,7 @@ export default function ClearTodayButton({ label, onConfirm }: Props) {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="rounded-lg border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50"
+        className="text-sm font-medium text-slate-400 hover:text-slate-600 hover:underline"
       >
         Limpar registros de hoje
       </button>
