@@ -5,7 +5,7 @@ import { downloadTextFile } from '../../lib/employeeCsv'
 
 interface Props {
   employees: Employee[]
-  onUpdate: (updates: { id: string; badge_code: string }[]) => Promise<string | void>
+  onUpdate: (updates: { id: string; name: string; badge_code: string }[]) => Promise<string | void>
   onClose: () => void
 }
 
@@ -52,7 +52,7 @@ export default function ImportLmsUpdate({ employees, onUpdate, onClose }: Props)
     if (applicable.length === 0) return
     setApplying(true)
     setError(null)
-    const err = await onUpdate(applicable.map((r) => ({ id: r.employee!.id, badge_code: r.lms! })))
+    const err = await onUpdate(applicable.map((r) => ({ id: r.employee!.id, name: r.employee!.name, badge_code: r.lms! })))
     setApplying(false)
     if (err) setError(err)
     else onClose()

@@ -101,8 +101,13 @@ export function useEmployees() {
     return err
   }
 
-  /** Atualiza só o LMS de vários colaboradores já cadastrados (por id). */
-  async function updateBadgeCodes(updates: { id: string; badge_code: string }[]) {
+  /**
+   * Atualiza só o LMS de vários colaboradores já cadastrados (por id).
+   * O upsert do Postgres valida colunas NOT NULL (como "name") antes de
+   * resolver o conflito, mesmo quando o resultado é um UPDATE — por isso
+   * o nome atual precisa vir junto, mesmo sem mudar.
+   */
+  async function updateBadgeCodes(updates: { id: string; name: string; badge_code: string }[]) {
     const { error: err } = await supabase.from('employees').upsert(updates, { onConflict: 'id' })
     if (!err) await reload()
     return err
