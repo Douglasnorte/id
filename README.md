@@ -52,6 +52,15 @@ bipados pelo nome enquanto isso.
 O app mostra uma prévia com erros (linha sem nome, LMS duplicado) antes de
 confirmar a importação. Um modelo pode ser baixado direto na tela.
 
+### Atualizar o LMS de colaboradores já cadastrados
+
+A importação por CSV acima só cria colaboradores novos. Para preencher o LMS
+de quem já está cadastrado (ex.: recebeu a lista oficial de LMS depois), use
+**Colaboradores → Atualizar LMS por nome** com um CSV de colunas `nome, lms`.
+O nome precisa bater exatamente (sem diferenciar maiúsculas/acentos) com o já
+cadastrado; a prévia mostra quem não foi encontrado, nomes duplicados no
+cadastro, e avisa quando o LMS já pertence a outra pessoa, antes de confirmar.
+
 ### Importar calendário de escalas (DSR) e pendências por escala
 
 Em times com escala revezada (ex.: 4 grupos A/B/C/D, cada um de folga em dias
