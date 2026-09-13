@@ -95,6 +95,7 @@ export default function App() {
             setActive={employeesState.setActive}
             importEmployees={employeesState.importEmployees}
             importCalendar={shiftCalendarState.importCalendar}
+            updateBadgeCodes={employeesState.updateBadgeCodes}
           />
         )}
       </main>

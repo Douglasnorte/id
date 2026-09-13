@@ -3,6 +3,7 @@ import EmployeeForm, { EmployeeFormValues } from './EmployeeForm'
 import EmployeeList from './EmployeeList'
 import ImportCsv from './ImportCsv'
 import ImportShiftCalendar from './ImportShiftCalendar'
+import ImportLmsUpdate from './ImportLmsUpdate'
 import type { EmployeeInput } from '../../hooks/useEmployees'
 import type { ShiftCalendarInput } from '../../hooks/useShiftCalendar'
 import type { Employee } from '../../types'
@@ -19,9 +20,10 @@ interface Props {
   setActive: (id: string, active: boolean) => Promise<{ message: string } | null>
   importEmployees: (rows: EmployeeInput[]) => Promise<{ message: string } | null>
   importCalendar: (rows: ShiftCalendarInput[]) => Promise<{ message: string } | null>
+  updateBadgeCodes: (updates: { id: string; badge_code: string }[]) => Promise<{ message: string } | null>
 }
 
-type Panel = 'none' | 'form' | 'import' | 'importCalendar'
+type Panel = 'none' | 'form' | 'import' | 'importCalendar' | 'updateLms'
 
 export default function EmployeesTab({
   employees,
@@ -30,6 +32,7 @@ export default function EmployeesTab({
   setActive,
   importEmployees,
   importCalendar,
+  updateBadgeCodes,
 }: Props) {
   const [panel, setPanel] = useState<Panel>('none')
   const [editing, setEditing] = useState<Employee | null>(null)
@@ -71,6 +74,11 @@ export default function EmployeesTab({
     if (err) return err.message
   }
 
+  async function handleUpdateLms(updates: { id: string; badge_code: string }[]): Promise<string | void> {
+    const err = await updateBadgeCodes(updates)
+    if (err) return err.message
+  }
+
   async function handleToggleActive(employee: Employee) {
     await setActive(employee.id, !employee.active)
   }
@@ -84,6 +92,12 @@ export default function EmployeesTab({
         </div>
         {panel === 'none' && (
           <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setPanel('updateLms')}
+              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            >
+              Atualizar LMS por nome
+            </button>
             <button
               onClick={() => setPanel('importCalendar')}
               className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
@@ -123,6 +137,10 @@ export default function EmployeesTab({
 
       {panel === 'importCalendar' && (
         <ImportShiftCalendar onImport={handleImportCalendar} onClose={() => setPanel('none')} />
+      )}
+
+      {panel === 'updateLms' && (
+        <ImportLmsUpdate employees={employees} onUpdate={handleUpdateLms} onClose={() => setPanel('none')} />
       )}
 
       <EmployeeList employees={employees} onEdit={openEdit} onToggleActive={handleToggleActive} />

@@ -101,5 +101,22 @@ export function useEmployees() {
     return err
   }
 
-  return { employees, loading, error, reload, createEmployee, updateEmployee, setActive, importEmployees }
+  /** Atualiza só o LMS de vários colaboradores já cadastrados (por id). */
+  async function updateBadgeCodes(updates: { id: string; badge_code: string }[]) {
+    const { error: err } = await supabase.from('employees').upsert(updates, { onConflict: 'id' })
+    if (!err) await reload()
+    return err
+  }
+
+  return {
+    employees,
+    loading,
+    error,
+    reload,
+    createEmployee,
+    updateEmployee,
+    setActive,
+    importEmployees,
+    updateBadgeCodes,
+  }
 }
