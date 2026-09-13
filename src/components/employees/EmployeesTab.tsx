@@ -20,7 +20,7 @@ interface Props {
   setActive: (id: string, active: boolean) => Promise<{ message: string } | null>
   importEmployees: (rows: EmployeeInput[]) => Promise<{ message: string } | null>
   importCalendar: (rows: ShiftCalendarInput[]) => Promise<{ message: string } | null>
-  updateBadgeCodes: (updates: { id: string; badge_code: string }[]) => Promise<{ message: string } | null>
+  updateBadgeCodes: (updates: { id: string; name: string; badge_code: string }[]) => Promise<{ message: string } | null>
 }
 
 type Panel = 'none' | 'form' | 'import' | 'importCalendar' | 'updateLms'
@@ -74,7 +74,7 @@ export default function EmployeesTab({
     if (err) return err.message
   }
 
-  async function handleUpdateLms(updates: { id: string; badge_code: string }[]): Promise<string | void> {
+  async function handleUpdateLms(updates: { id: string; name: string; badge_code: string }[]): Promise<string | void> {
     const err = await updateBadgeCodes(updates)
     if (err) return err.message
   }
