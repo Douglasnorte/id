@@ -109,7 +109,7 @@ export default function CameraScanner({ active, onDecode }: Props) {
       {error && <div className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
 
       <p className="text-center text-xs text-slate-400">
-        Aponte a câmera para o crachá de cada colaborador. A leitura continua ativa — é possível bipar
+        Aponte a câmera para o LMS de cada colaborador. A leitura continua ativa — é possível bipar
         várias pessoas em sequência sem reiniciar.
       </p>
     </div>

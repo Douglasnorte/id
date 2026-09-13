@@ -1,8 +1,9 @@
 # Ponto de Colaboradores
 
 Aplicativo de controle de ponto (entrada, saída para almoço, volta do almoço e
-saída) com leitura de crachá por leitor 2D, câmera do celular (modo contínuo,
-para bipar vários colaboradores em sequência) ou digitação manual.
+saída) com leitura do LMS por leitor 2D, câmera do celular (modo contínuo,
+para bipar vários colaboradores em sequência), digitação manual do número ou
+busca pelo nome do colaborador.
 
 - **Frontend:** React + TypeScript + Vite + Tailwind CSS
 - **Banco de dados / backend:** Supabase (Postgres + Auth + Realtime)
@@ -10,9 +11,10 @@ para bipar vários colaboradores em sequência) ou digitação manual.
 
 ## Como funciona
 
-- Cada colaborador é identificado pelo número do crachá (LMS), lido no
-  formato `{12345}`. O app extrai o número de dentro das chaves para localizar
-  o colaborador — também aceita a digitação do número puro.
+- Cada colaborador é identificado pelo número do LMS, lido no formato
+  `{12345}`. O app extrai o número de dentro das chaves para localizar o
+  colaborador — também aceita a digitação do número puro ou do nome (com
+  sugestões), útil para quem ainda não tem o LMS cadastrado.
 - A cada leitura, o sistema detecta automaticamente qual é a próxima batida
   esperada para aquele colaborador no dia: **Entrada → Saída p/ almoço →
   Volta do almoço → Saída**. Também é possível forçar manualmente o tipo de
@@ -38,10 +40,11 @@ para bipar vários colaboradores em sequência) ou digitação manual.
 ### Importar colaboradores por CSV
 
 Na aba **Colaboradores → Importar CSV**, suba um arquivo com as colunas
-`cracha, nome, departamento, cargo, turno, escala, observacoes` (cabeçalho
+`lms, nome, departamento, cargo, turno, escala, observacoes` (cabeçalho
 livre de acentos/maiúsculas). Só **nome** é obrigatório — colaboradores sem
-crachá entram como "Pendente" e podem ser completados depois pela edição.
-O app mostra uma prévia com erros (linha sem nome, crachá duplicado) antes de
+LMS entram como "Pendente" e podem ser completados depois pela edição, ou
+bipados pelo nome enquanto isso.
+O app mostra uma prévia com erros (linha sem nome, LMS duplicado) antes de
 confirmar a importação. Um modelo pode ser baixado direto na tela.
 
 ### Importar calendário de escalas (DSR) e pendências por escala
@@ -99,11 +102,12 @@ Pages) já é servido em HTTPS.
 - **Leitor 2D / Manual:** um único campo de texto sempre focado. Leitores de
   código de barras/QR 2D funcionam como teclado (digitam o código e enviam
   "Enter"), então basta bipar. O mesmo campo aceita digitação manual do
-  número do crachá.
+  número do LMS ou do nome do colaborador — digitando o nome, aparecem
+  sugestões para clicar e registrar direto.
 - **Câmera do celular:** ativa a câmera do aparelho e fica escaneando de
   forma contínua — dá para bipar várias pessoas em sequência sem precisar
   reiniciar a leitura a cada uma. Um cooldown de alguns segundos por código
-  evita registrar o mesmo crachá duas vezes por engano.
+  evita registrar o mesmo LMS duas vezes por engano.
 
 ## Estrutura do projeto
 

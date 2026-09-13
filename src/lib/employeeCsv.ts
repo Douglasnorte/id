@@ -9,6 +9,7 @@ export interface ParsedRow {
 }
 
 const HEADER_ALIASES: Record<string, keyof EmployeeInput> = {
+  lms: 'badge_code',
   cracha: 'badge_code',
   'crachá': 'badge_code',
   matricula: 'badge_code',
@@ -47,7 +48,7 @@ function normalizeHeader(header: string): string {
 
 export function csvTemplate(): string {
   return Papa.unparse({
-    fields: ['cracha', 'nome', 'departamento', 'cargo', 'turno', 'escala', 'observacoes'],
+    fields: ['lms', 'nome', 'departamento', 'cargo', 'turno', 'escala', 'observacoes'],
     data: [['12345', 'Maria da Silva', 'SVC AM', 'Operadora', 'A', '5x2 - 01:30 as 10:48', '']],
   })
 }
@@ -84,10 +85,10 @@ export function parseEmployeesCsv(csvText: string, existing: Employee[]): Parsed
 
     if (input.badge_code) {
       if (existingCodes.has(input.badge_code)) {
-        return { row: rowNumber, input: null, error: `Crachá ${input.badge_code} já cadastrado.` }
+        return { row: rowNumber, input: null, error: `LMS ${input.badge_code} já cadastrado.` }
       }
       if (seenCodesInFile.has(input.badge_code)) {
-        return { row: rowNumber, input: null, error: `Crachá ${input.badge_code} duplicado no arquivo.` }
+        return { row: rowNumber, input: null, error: `LMS ${input.badge_code} duplicado no arquivo.` }
       }
       seenCodesInFile.add(input.badge_code)
     }

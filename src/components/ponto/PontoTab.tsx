@@ -37,15 +37,19 @@ export default function PontoTab({ category, heading, employees, eventsFor, isOf
   }
 
   async function handleScan(raw: string, source: ScanSource, overrideType: TimeEventType | null) {
-    const code = extractBadgeCode(raw)
-    if (!code) {
+    const trimmed = raw.trim()
+    if (!trimmed) {
       pushResult({ ok: false, message: `Leitura inválida: "${raw}"` })
       return
     }
 
-    const employee = employees.find((e) => e.badge_code === code)
+    const code = extractBadgeCode(trimmed)
+    const employee =
+      employees.find((e) => code && e.badge_code === code) ??
+      employees.find((e) => e.name.toLowerCase() === trimmed.toLowerCase())
+
     if (!employee) {
-      pushResult({ ok: false, message: `Crachá não cadastrado (${code})` })
+      pushResult({ ok: false, message: `Colaborador não encontrado (LMS ou nome: "${trimmed}")` })
       return
     }
     if (!employee.active) {
@@ -103,6 +107,7 @@ export default function PontoTab({ category, heading, employees, eventsFor, isOf
           <ScannerInput
             active={mode === 'leitor'}
             eventOptions={CATEGORY_EVENTS[category]}
+            employees={employees}
             onSubmit={(raw, overrideType) => handleScan(raw, 'scanner', overrideType)}
           />
           {mode === 'camera' && (

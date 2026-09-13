@@ -38,7 +38,7 @@ export default function ExportButton({ category }: Props) {
       const date = new Date(row.event_time)
       return {
         nome: row.employees?.name ?? '',
-        cracha: row.employees?.badge_code ?? '',
+        lms: row.employees?.badge_code ?? '',
         departamento: row.employees?.department ?? '',
         escala: row.employees?.shift_group ?? '',
         tipo_batida: EVENT_LABELS[row.event_type],
