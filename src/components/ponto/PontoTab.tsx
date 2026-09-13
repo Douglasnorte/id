@@ -3,6 +3,7 @@ import ScannerInput from './ScannerInput'
 import ScanFeed, { ScanResult } from './ScanFeed'
 import PendingList from './PendingList'
 import ExportButton from './ExportButton'
+import ClearTodayButton from './ClearTodayButton'
 import { extractBadgeCode } from '../../lib/badgeCode'
 import { todayLabel } from '../../lib/dateUtils'
 import { CATEGORY_EVENTS } from '../../types'
@@ -22,13 +23,24 @@ interface Props {
     category: EventCategory,
     overrideType?: TimeEventType,
   ) => Promise<{ event?: TimeEvent; error?: string }>
+  deleteEvent: (eventId: string) => Promise<{ error?: string }>
+  deleteAllToday: (category: EventCategory) => Promise<{ error?: string }>
 }
 
 const MAX_FEED_ITEMS = 15
 
 const CameraScanner = lazy(() => import('./CameraScanner'))
 
-export default function PontoTab({ category, heading, employees, eventsFor, isOffToday, registerEvent }: Props) {
+export default function PontoTab({
+  category,
+  heading,
+  employees,
+  eventsFor,
+  isOffToday,
+  registerEvent,
+  deleteEvent,
+  deleteAllToday,
+}: Props) {
   const [mode, setMode] = useState<Mode>('leitor')
   const [results, setResults] = useState<ScanResult[]>([])
 
@@ -72,6 +84,16 @@ export default function PontoTab({ category, heading, employees, eventsFor, isOf
     }
   }
 
+  async function handleUndo(event: TimeEvent) {
+    const employee = employees.find((e) => e.id === event.employee_id)
+    const { error } = await deleteEvent(event.id)
+    if (error) {
+      pushResult({ ok: false, employeeName: employee?.name, message: `Não foi possível desfazer: ${error}` })
+    } else {
+      pushResult({ ok: true, employeeName: employee?.name, message: 'Registro desfeito' })
+    }
+  }
+
   return (
     <div className="grid gap-6 lg:grid-cols-5">
       <div className="space-y-6 lg:col-span-3">
@@ -102,6 +124,10 @@ export default function PontoTab({ category, heading, employees, eventsFor, isOf
             </div>
 
             <ExportButton key={mode} category={category} />
+            <ClearTodayButton
+              label={`Isso vai apagar todas as batidas de hoje de "${heading}".`}
+              onConfirm={() => deleteAllToday(category)}
+            />
           </div>
 
           <ScannerInput
@@ -124,7 +150,13 @@ export default function PontoTab({ category, heading, employees, eventsFor, isOf
       </div>
 
       <div className="lg:col-span-2">
-        <PendingList category={category} employees={employees} eventsFor={eventsFor} isOffToday={isOffToday} />
+        <PendingList
+          category={category}
+          employees={employees}
+          eventsFor={eventsFor}
+          isOffToday={isOffToday}
+          onUndo={handleUndo}
+        />
       </div>
     </div>
   )

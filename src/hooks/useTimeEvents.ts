@@ -100,7 +100,30 @@ export function useTimeEvents() {
     return { event: data as TimeEvent }
   }
 
-  return { events, loading, error, reload, eventsFor, registerEvent }
+  /** Desfaz (apaga) um registro específico — para corrigir uma batida errada. */
+  async function deleteEvent(eventId: string): Promise<{ error?: string }> {
+    const { error: err } = await supabase.from('time_events').delete().eq('id', eventId)
+    if (err) return { error: err.message }
+    setEvents((prev) => prev.filter((e) => e.id !== eventId))
+    return {}
+  }
+
+  /** Apaga todas as batidas de hoje de uma categoria (Entrada/Saída ou Almoço). */
+  async function deleteAllToday(category: EventCategory): Promise<{ error?: string }> {
+    const { error: err } = await supabase
+      .from('time_events')
+      .delete()
+      .in('event_type', CATEGORY_EVENTS[category])
+      .gte('event_time', startOfTodayIso())
+      .lte('event_time', endOfTodayIso())
+
+    if (err) return { error: err.message }
+    const removedTypes = new Set(CATEGORY_EVENTS[category])
+    setEvents((prev) => prev.filter((e) => !removedTypes.has(e.event_type)))
+    return {}
+  }
+
+  return { events, loading, error, reload, eventsFor, registerEvent, deleteEvent, deleteAllToday }
 }
 
 /**
