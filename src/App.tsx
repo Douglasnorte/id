@@ -71,6 +71,8 @@ export default function App() {
             eventsFor={timeEventsState.eventsFor}
             isOffToday={shiftCalendarState.isOffToday}
             registerEvent={timeEventsState.registerEvent}
+            deleteEvent={timeEventsState.deleteEvent}
+            deleteAllToday={timeEventsState.deleteAllToday}
           />
         )}
         {tab === 'almoco' && (
@@ -81,6 +83,8 @@ export default function App() {
             eventsFor={timeEventsState.eventsFor}
             isOffToday={shiftCalendarState.isOffToday}
             registerEvent={timeEventsState.registerEvent}
+            deleteEvent={timeEventsState.deleteEvent}
+            deleteAllToday={timeEventsState.deleteAllToday}
           />
         )}
         {tab === 'colaboradores' && (

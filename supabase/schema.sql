@@ -134,6 +134,12 @@ drop policy if exists "time_events_insert_authenticated" on public.time_events;
 create policy "time_events_insert_authenticated" on public.time_events
   for insert to authenticated with check (true);
 
+-- Permite corrigir uma batida errada (desfazer um registro específico ou
+-- limpar as batidas do dia).
+drop policy if exists "time_events_delete_authenticated" on public.time_events;
+create policy "time_events_delete_authenticated" on public.time_events
+  for delete to authenticated using (true);
+
 drop policy if exists "employee_schedules_all_authenticated" on public.employee_schedules;
 create policy "employee_schedules_all_authenticated" on public.employee_schedules
   for all to authenticated using (true) with check (true);

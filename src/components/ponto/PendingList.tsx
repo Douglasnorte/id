@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { CATEGORY_EVENTS, Employee, EventCategory, TimeEvent } from '../../types'
+import { CATEGORY_EVENTS, EVENT_LABELS, Employee, EventCategory, TimeEvent } from '../../types'
 import { formatTime } from '../../lib/dateUtils'
 
 interface Props {
@@ -7,6 +7,7 @@ interface Props {
   employees: Employee[]
   eventsFor: (employeeId: string) => TimeEvent[]
   isOffToday: (department: string | null, shiftGroup: string | null) => boolean
+  onUndo: (event: TimeEvent) => void
 }
 
 type StatusKey = 'notArrived' | 'in' | 'done' | 'off'
@@ -40,7 +41,7 @@ function formatDuration(ms: number): string {
   return h > 0 ? `${h}h${m.toString().padStart(2, '0')}` : `${m}min`
 }
 
-export default function PendingList({ category, employees, eventsFor, isOffToday }: Props) {
+export default function PendingList({ category, employees, eventsFor, isOffToday, onUndo }: Props) {
   const [firstType, secondType] = CATEGORY_EVENTS[category]
   const meta = STATUS_META[category]
   const styles = STATUS_STYLES[category]
@@ -145,6 +146,7 @@ export default function PendingList({ category, employees, eventsFor, isOffToday
               <th className="pb-2">Status</th>
               {isLunch && <th className="pb-2">Tempo de almoço</th>}
               <th className="pb-2">Última batida</th>
+              <th className="pb-2"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -176,11 +178,26 @@ export default function PendingList({ category, employees, eventsFor, isOffToday
                   </td>
                 )}
                 <td className="py-2 text-slate-500">{lastEvent ? formatTime(lastEvent.event_time) : '—'}</td>
+                <td className="py-2 text-right">
+                  {lastEvent && (
+                    <button
+                      onClick={() => {
+                        const label = EVENT_LABELS[lastEvent.event_type]
+                        if (window.confirm(`Desfazer "${label}" de ${employee.name} às ${formatTime(lastEvent.event_time)}?`)) {
+                          onUndo(lastEvent)
+                        }
+                      }}
+                      className="text-xs font-medium text-red-600 hover:underline"
+                    >
+                      Desfazer
+                    </button>
+                  )}
+                </td>
               </tr>
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={isLunch ? 4 : 3} className="py-6 text-center text-slate-400">
+                <td colSpan={isLunch ? 5 : 4} className="py-6 text-center text-slate-400">
                   Nenhum colaborador ativo cadastrado.
                 </td>
               </tr>
