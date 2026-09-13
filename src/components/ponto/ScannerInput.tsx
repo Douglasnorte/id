@@ -45,7 +45,6 @@ export default function ScannerInput({ onSubmit, active, eventOptions }: Props) 
           type="text"
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          onBlur={refocus}
           autoFocus
           className="w-full rounded-lg border border-slate-300 px-4 py-3 text-lg tracking-wide focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
         />
