@@ -50,8 +50,8 @@ export default function ImportCsv({ employees, onImport, onClose }: Props) {
       </div>
 
       <p className="text-sm text-slate-500">
-        Colunas aceitas: <code className="text-xs">cracha, nome, departamento, cargo, turno, escala,
-        observacoes</code>. Apenas <strong>nome</strong> é obrigatório — o crachá pode ser preenchido depois,
+        Colunas aceitas: <code className="text-xs">lms, nome, departamento, cargo, turno, escala,
+        observacoes</code>. Apenas <strong>nome</strong> é obrigatório — o LMS pode ser preenchido depois,
         na edição do colaborador.
       </p>
 
@@ -98,7 +98,7 @@ export default function ImportCsv({ employees, onImport, onClose }: Props) {
                 <tr>
                   <th className="px-3 py-2">Linha</th>
                   <th className="px-3 py-2">Nome</th>
-                  <th className="px-3 py-2">Crachá</th>
+                  <th className="px-3 py-2">LMS</th>
                   <th className="px-3 py-2">Departamento</th>
                   <th className="px-3 py-2">Situação</th>
                 </tr>

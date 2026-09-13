@@ -64,7 +64,7 @@ export default function EmployeeForm({ initial, onCancel, onSubmit }: Props) {
       </h2>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Número do crachá (LMS)">
+        <Field label="Número do LMS">
           <input
             value={values.badge_code}
             onChange={(e) => setValues((v) => ({ ...v, badge_code: e.target.value.replace(/\D/g, '') }))}

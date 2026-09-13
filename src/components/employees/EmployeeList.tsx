@@ -44,7 +44,7 @@ export default function EmployeeList({ employees, onEdit, onToggleActive }: Prop
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar por nome, crachá ou setor"
+            placeholder="Buscar por nome, LMS ou setor"
             className="input max-w-xs"
           />
         </div>
@@ -54,7 +54,7 @@ export default function EmployeeList({ employees, onEdit, onToggleActive }: Prop
         <table className="w-full text-sm">
           <thead className="text-left text-xs uppercase text-slate-400">
             <tr>
-              <th className="pb-2">Crachá</th>
+              <th className="pb-2">LMS</th>
               <th className="pb-2">Nome</th>
               <th className="pb-2">Departamento</th>
               <th className="pb-2">Cargo</th>

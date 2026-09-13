@@ -154,7 +154,7 @@ export default function PendingList({ category, employees, eventsFor, isOffToday
                   <div className="font-medium text-slate-800">{employee.name}</div>
                   <div className="text-xs text-slate-400">
                     {employee.department ?? '—'}
-                    {employee.shift_group ? ` · escala ${employee.shift_group}` : ''} · crachá{' '}
+                    {employee.shift_group ? ` · escala ${employee.shift_group}` : ''} · LMS{' '}
                     {employee.badge_code ?? '—'}
                   </div>
                 </td>
