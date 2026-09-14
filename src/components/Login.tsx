@@ -1,11 +1,11 @@
 import { FormEvent, useState } from 'react'
 
 interface Props {
-  onSignIn: (email: string, password: string) => Promise<string | undefined>
+  onSignIn: (username: string, password: string) => Promise<string | undefined>
 }
 
 export default function Login({ onSignIn }: Props) {
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -14,7 +14,7 @@ export default function Login({ onSignIn }: Props) {
     e.preventDefault()
     setSubmitting(true)
     setError(null)
-    const err = await onSignIn(email, password)
+    const err = await onSignIn(username, password)
     if (err) setError(err)
     setSubmitting(false)
   }
@@ -32,15 +32,16 @@ export default function Login({ onSignIn }: Props) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">E-mail</label>
+            <label className="mb-1 block text-sm font-medium text-slate-700">Usuário</label>
             <input
-              type="email"
+              type="text"
               required
               autoFocus
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
-              placeholder="voce@empresa.com"
+              placeholder="seu.usuario"
             />
           </div>
           <div>
@@ -48,6 +49,7 @@ export default function Login({ onSignIn }: Props) {
             <input
               type="password"
               required
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
@@ -69,7 +71,7 @@ export default function Login({ onSignIn }: Props) {
         </form>
 
         <p className="mt-6 text-center text-xs text-slate-400">
-          Usuários são criados no painel do Supabase (Authentication → Users).
+          Usuários são criados no painel do Supabase (Authentication → Users + tabela login_usernames).
         </p>
       </div>
     </div>

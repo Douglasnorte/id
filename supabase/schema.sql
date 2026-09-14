@@ -110,6 +110,37 @@ create table if not exists public.shift_calendar (
 create index if not exists shift_calendar_date_idx on public.shift_calendar (work_date);
 
 -- ---------------------------------------------------------------------
+-- Login por usuário (o Supabase Auth exige e-mail; isso traduz um nome
+-- de usuário simples para o e-mail cadastrado, só para a tela de login).
+-- Cadastre cada login com:
+--   insert into public.login_usernames (username, email) values ('douglas', 'nortedouglas@gmail.com');
+-- ---------------------------------------------------------------------
+create table if not exists public.login_usernames (
+  username text primary key,
+  email text not null,
+  created_at timestamptz not null default now()
+);
+
+create unique index if not exists login_usernames_lower_idx on public.login_usernames (lower(username));
+
+-- SECURITY DEFINER: roda com o dono da função (não o usuário anônimo que
+-- ainda não fez login), então funciona na tela de login antes de autenticar,
+-- sem expor a tabela inteira — só devolve o e-mail de um usuário por vez.
+create or replace function public.email_for_username(p_username text)
+returns text
+language sql
+security definer
+set search_path = public
+as $$
+  select email from public.login_usernames where lower(username) = lower(trim(p_username)) limit 1;
+$$;
+
+grant execute on function public.email_for_username(text) to anon, authenticated;
+
+alter table public.login_usernames enable row level security;
+-- Sem políticas: ninguém lê a tabela direto, só através da função acima.
+
+-- ---------------------------------------------------------------------
 -- Row Level Security — acesso apenas para usuários autenticados
 -- (a equipe que opera o ponto faz login com uma conta Supabase Auth)
 -- ---------------------------------------------------------------------

@@ -24,8 +24,8 @@ export default function App() {
   if (!session) {
     return (
       <Login
-        onSignIn={async (email, password) => {
-          const err = await signIn(email, password)
+        onSignIn={async (username, password) => {
+          const err = await signIn(username, password)
           return err?.message
         }}
       />
