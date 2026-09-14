@@ -100,24 +100,34 @@ export function useTimeEvents() {
     return { event: data as TimeEvent }
   }
 
+  const RLS_BLOCKED_MESSAGE =
+    'Nada foi apagado — o banco recusou silenciosamente (RLS). Rode de novo o supabase/schema.sql no SQL Editor para aplicar a permissão de exclusão de time_events.'
+
   /** Desfaz (apaga) um registro específico — para corrigir uma batida errada. */
   async function deleteEvent(eventId: string): Promise<{ error?: string }> {
-    const { error: err } = await supabase.from('time_events').delete().eq('id', eventId)
+    const { error: err, count } = await supabase
+      .from('time_events')
+      .delete({ count: 'exact' })
+      .eq('id', eventId)
     if (err) return { error: err.message }
+    if (!count) return { error: RLS_BLOCKED_MESSAGE }
     setEvents((prev) => prev.filter((e) => e.id !== eventId))
     return {}
   }
 
   /** Apaga todas as batidas de hoje de uma categoria (Entrada/Saída ou Almoço). */
   async function deleteAllToday(category: EventCategory): Promise<{ error?: string }> {
-    const { error: err } = await supabase
+    const expectedCount = events.filter((e) => CATEGORY_EVENTS[category].includes(e.event_type)).length
+
+    const { error: err, count } = await supabase
       .from('time_events')
-      .delete()
+      .delete({ count: 'exact' })
       .in('event_type', CATEGORY_EVENTS[category])
       .gte('event_time', startOfTodayIso())
       .lte('event_time', endOfTodayIso())
 
     if (err) return { error: err.message }
+    if (expectedCount > 0 && !count) return { error: RLS_BLOCKED_MESSAGE }
     const removedTypes = new Set(CATEGORY_EVENTS[category])
     setEvents((prev) => prev.filter((e) => !removedTypes.has(e.event_type)))
     return {}
