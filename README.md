@@ -81,9 +81,15 @@ o valor anterior, então dá para importar mês a mês.
    políticas de RLS (só usuários autenticados leem/gravam dados). O arquivo é
    seguro para rodar de novo em um banco já existente (ele aplica só o que
    ainda faltar, como colunas novas).
-3. Em **Authentication → Users**, crie um (ou mais) usuário para quem vai
-   operar o ponto (RH, recepção, etc.). Não há autocadastro pelo app — os
-   logins são criados manualmente no painel.
+3. Em **Authentication → Users**, crie um (ou mais) usuário (e-mail + senha)
+   para quem vai operar o ponto. Não há autocadastro pelo app — os logins são
+   criados manualmente no painel.
+4. No **SQL Editor**, cadastre um "usuário de login" simples para cada e-mail
+   criado acima (a tela de login pede usuário, não e-mail):
+   ```sql
+   insert into public.login_usernames (username, email)
+   values ('douglas', 'nortedouglas@gmail.com');
+   ```
 4. Em **Project Settings → API**, copie a **Project URL** e a **anon public
    key**: são elas que o app usa para falar com o Supabase.
 

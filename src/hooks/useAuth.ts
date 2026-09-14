@@ -19,7 +19,15 @@ export function useAuth() {
     return () => subscription.subscription.unsubscribe()
   }, [])
 
-  async function signIn(email: string, password: string) {
+  async function signIn(username: string, password: string) {
+    const { data: email, error: lookupError } = await supabase.rpc('email_for_username', {
+      p_username: username,
+    })
+
+    if (lookupError || !email) {
+      return new Error('Usuário ou senha inválidos.')
+    }
+
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     return error
   }
