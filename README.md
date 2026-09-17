@@ -31,6 +31,12 @@ busca pelo nome do colaborador.
 - A lista de pendências pode ser filtrada por departamento (ex.: SVC AM vs.
   SVC PM) quando há mais de um cadastrado, e cada aba de ponto tem um botão
   **Exportar CSV** para baixar as batidas de um período (padrão: hoje).
+  Marcando a opção **"Incluir quem não bateu ponto"**, o CSV também traz uma
+  linha por colaborador ativo que não teve a primeira batida do dia (Entrada
+  ou Saída p/ almoço, conforme a aba), com "Não chegou"/"Não saiu" no lugar
+  do horário — útil para auditoria. Em períodos de vários dias isso só é
+  calculado até hoje (dias futuros não têm o que reportar), e quem está de
+  folga (DSR) hoje não entra na lista.
 - Batida errada tem conserto: cada linha da lista de pendências tem um botão
   **Desfazer** que apaga só a última batida daquele colaborador na categoria
   (Entrada/Saída ou Almoço) — clique de novo pra desfazer a anterior, se

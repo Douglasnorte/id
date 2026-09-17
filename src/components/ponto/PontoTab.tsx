@@ -123,7 +123,7 @@ export default function PontoTab({
               </button>
             </div>
 
-            <ExportButton key={mode} category={category} />
+            <ExportButton key={mode} category={category} employees={employees} isOffToday={isOffToday} />
             <ClearTodayButton
               label={`Isso vai apagar todas as batidas de hoje de "${heading}".`}
               onConfirm={() => deleteAllToday(category)}
