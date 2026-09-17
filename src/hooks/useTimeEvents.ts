@@ -4,6 +4,7 @@ import { endOfTodayIso, startOfTodayIso } from '../lib/dateUtils'
 import { CATEGORY_EVENTS, type Employee, type EventCategory, type ScanSource, type TimeEvent, type TimeEventType } from '../types'
 
 export interface ExportedTimeEvent {
+  employee_id: string
   event_type: TimeEventType
   event_time: string
   source: ScanSource
@@ -147,7 +148,7 @@ export async function fetchEventsForExport(
 ): Promise<{ data?: ExportedTimeEvent[]; error?: string }> {
   const { data, error } = await supabase
     .from('time_events')
-    .select('event_type, event_time, source, employees(name, badge_code, department, shift_group)')
+    .select('employee_id, event_type, event_time, source, employees(name, badge_code, department, shift_group)')
     .in('event_type', CATEGORY_EVENTS[category])
     .gte('event_time', startIso)
     .lte('event_time', endIso)
