@@ -6,6 +6,7 @@ export interface Employee {
   role: string | null
   shift_group: string | null
   shift_label: string | null
+  employment_type: string | null
   active: boolean
   notes: string | null
   created_at: string

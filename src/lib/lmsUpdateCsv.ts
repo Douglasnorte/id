@@ -9,6 +9,7 @@ export interface EmployeeUpdateFields {
   role?: string
   shift_group?: string
   shift_label?: string
+  employment_type?: string
 }
 
 export interface ParsedLmsRow {
@@ -41,11 +42,15 @@ const HEADER_ALIASES: Record<string, Field> = {
   funcao: 'role',
   turno: 'shift_group',
   grupo: 'shift_group',
+  // "escala" sozinho (sem "descrição escala" junto) é tratado como a
+  // descrição por compatibilidade com arquivos antigos — ver resolveHeaderAliases.
   escala: 'shift_label',
   'descricao escala': 'shift_label',
   'descrição escala': 'shift_label',
   horario: 'shift_label',
   'horário': 'shift_label',
+  tipo: 'employment_type',
+  'tipo de contrato': 'employment_type',
 }
 
 const FIELD_LABEL: Record<UpdatableField, string> = {
@@ -54,6 +59,7 @@ const FIELD_LABEL: Record<UpdatableField, string> = {
   role: 'Cargo',
   shift_group: 'Turno',
   shift_label: 'Escala',
+  employment_type: 'Tipo',
 }
 
 function normalizeHeader(header: string): string {
@@ -62,6 +68,16 @@ function normalizeHeader(header: string): string {
     .replace(/[̀-ͯ]/g, '')
     .trim()
     .toLowerCase()
+}
+
+/** Ver mesma lógica em employeeCsv.ts: "escala" quer dizer o grupo/turno
+ * quando vem acompanhado de uma coluna de descrição separada. */
+function resolveHeaderAliases(headers: string[]): Record<string, Field> {
+  const normalized = headers.map(normalizeHeader)
+  const hasDescricao = normalized.some((h) => HEADER_ALIASES[h] === 'shift_label' && h !== 'escala')
+  const hasTurno = normalized.some((h) => HEADER_ALIASES[h] === 'shift_group')
+  if (!hasDescricao || hasTurno) return HEADER_ALIASES
+  return { ...HEADER_ALIASES, escala: 'shift_group' }
 }
 
 function normalizeName(name: string): string {
@@ -94,6 +110,7 @@ export function parseLmsUpdateCsv(csvText: string, employees: Employee[]): Parse
   }
   const lmsSeenInFile = new Set<string>()
   const employeeIdsSeenInFile = new Set<string>()
+  const aliases = resolveHeaderAliases(parsed.meta.fields ?? [])
 
   return parsed.data.map((raw, index) => {
     const rowNumber = index + 2
@@ -101,7 +118,7 @@ export function parseLmsUpdateCsv(csvText: string, employees: Employee[]): Parse
     let name = ''
     const fields: Partial<Record<UpdatableField, string>> = {}
     for (const [header, value] of Object.entries(raw)) {
-      const field = HEADER_ALIASES[normalizeHeader(header)]
+      const field = aliases[normalizeHeader(header)]
       if (!field || value == null) continue
       const trimmed = String(value).trim()
       if (!trimmed) continue
@@ -174,6 +191,7 @@ export function parseLmsUpdateCsv(csvText: string, employees: Employee[]): Parse
       role: employee.role,
       shift_group: employee.shift_group,
       shift_label: employee.shift_label,
+      employment_type: employee.employment_type,
     }
 
     const changes: EmployeeUpdateFields = {}
@@ -205,7 +223,7 @@ export function parseLmsUpdateCsv(csvText: string, employees: Employee[]): Parse
 
 export function lmsUpdateCsvTemplate(): string {
   return Papa.unparse({
-    fields: ['nome', 'lms', 'departamento', 'cargo', 'turno', 'escala'],
-    data: [['Maria da Silva', '12345', 'SVC AM', 'Operadora', 'A', '5x2 - 01:30 as 10:48']],
+    fields: ['nome', 'lms', 'departamento', 'cargo', 'escala', 'descricao escala', 'tipo'],
+    data: [['Maria da Silva', '12345', 'SVC AM', 'Operadora', 'A', '5x2 - 01:30 as 10:48', 'Efetivo']],
   })
 }

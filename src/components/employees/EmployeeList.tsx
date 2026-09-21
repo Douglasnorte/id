@@ -58,6 +58,9 @@ export default function EmployeeList({ employees, onEdit, onToggleActive }: Prop
               <th className="pb-2">Nome</th>
               <th className="pb-2">Departamento</th>
               <th className="pb-2">Cargo</th>
+              <th className="pb-2">Turno</th>
+              <th className="pb-2">Escala</th>
+              <th className="pb-2">Tipo</th>
               <th className="pb-2">Status</th>
               <th className="pb-2 text-right">Ações</th>
             </tr>
@@ -71,6 +74,9 @@ export default function EmployeeList({ employees, onEdit, onToggleActive }: Prop
                 <td className="py-2 font-medium text-slate-800">{employee.name}</td>
                 <td className="py-2 text-slate-500">{employee.department ?? '—'}</td>
                 <td className="py-2 text-slate-500">{employee.role ?? '—'}</td>
+                <td className="py-2 text-slate-500">{employee.shift_group ?? '—'}</td>
+                <td className="py-2 text-slate-500">{employee.shift_label ?? '—'}</td>
+                <td className="py-2 text-slate-500">{employee.employment_type ?? '—'}</td>
                 <td className="py-2">
                   <span
                     className={`rounded-full px-2 py-1 text-xs font-medium ${
@@ -102,7 +108,7 @@ export default function EmployeeList({ employees, onEdit, onToggleActive }: Prop
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={6} className="py-6 text-center text-slate-400">
+                <td colSpan={9} className="py-6 text-center text-slate-400">
                   Nenhum colaborador encontrado.
                 </td>
               </tr>

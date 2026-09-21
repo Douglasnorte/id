@@ -24,15 +24,19 @@ const HEADER_ALIASES: Record<string, keyof EmployeeInput> = {
   cargo: 'role',
   'função': 'role',
   funcao: 'role',
-  contratacao: 'role',
-  'contratação': 'role',
   turno: 'shift_group',
   grupo: 'shift_group',
+  // "escala" sozinho (sem "descrição escala" junto) é tratado como a
+  // descrição por compatibilidade com arquivos antigos — ver resolveEscalaAlias.
   escala: 'shift_label',
   'descricao escala': 'shift_label',
   'descrição escala': 'shift_label',
   horario: 'shift_label',
   'horário': 'shift_label',
+  tipo: 'employment_type',
+  'tipo de contrato': 'employment_type',
+  contratacao: 'employment_type',
+  'contratação': 'employment_type',
   observacoes: 'notes',
   'observações': 'notes',
   obs: 'notes',
@@ -46,10 +50,24 @@ function normalizeHeader(header: string): string {
     .toLowerCase()
 }
 
+/**
+ * Planilhas de RH costumam ter "Escala" (o grupo/turno, ex. "2 TURNO/ SD D")
+ * e "Descrição Escala" (o horário por extenso) como colunas separadas — nesse
+ * caso "escala" sozinho quer dizer o grupo (shift_group), não a descrição.
+ * Sem uma coluna de descrição junto, mantém o sentido antigo (shift_label).
+ */
+export function resolveHeaderAliases(headers: string[]): Record<string, keyof EmployeeInput> {
+  const normalized = headers.map(normalizeHeader)
+  const hasDescricao = normalized.some((h) => HEADER_ALIASES[h] === 'shift_label' && h !== 'escala')
+  const hasTurno = normalized.some((h) => HEADER_ALIASES[h] === 'shift_group')
+  if (!hasDescricao || hasTurno) return HEADER_ALIASES
+  return { ...HEADER_ALIASES, escala: 'shift_group' }
+}
+
 export function csvTemplate(): string {
   return Papa.unparse({
-    fields: ['lms', 'nome', 'departamento', 'cargo', 'turno', 'escala', 'observacoes'],
-    data: [['12345', 'Maria da Silva', 'SVC AM', 'Operadora', 'A', '5x2 - 01:30 as 10:48', '']],
+    fields: ['lms', 'nome', 'departamento', 'cargo', 'escala', 'descricao escala', 'tipo', 'observacoes'],
+    data: [['12345', 'Maria da Silva', 'SVC AM', 'Operadora', 'A', '5x2 - 01:30 as 10:48', 'Efetivo', '']],
   })
 }
 
@@ -62,13 +80,14 @@ export function parseEmployeesCsv(csvText: string, existing: Employee[]): Parsed
 
   const existingCodes = new Set(existing.map((e) => e.badge_code).filter((c): c is string => !!c))
   const seenCodesInFile = new Set<string>()
+  const aliases = resolveHeaderAliases(parsed.meta.fields ?? [])
 
   return parsed.data.map((raw, index) => {
     const rowNumber = index + 2 // +1 for header, +1 for 1-based
 
     const input: Partial<EmployeeInput> = {}
     for (const [header, value] of Object.entries(raw)) {
-      const field = HEADER_ALIASES[normalizeHeader(header)]
+      const field = aliases[normalizeHeader(header)]
       if (!field || value == null) continue
       const trimmed = String(value).trim()
       if (!trimmed) continue

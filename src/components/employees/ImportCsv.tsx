@@ -50,8 +50,8 @@ export default function ImportCsv({ employees, onImport, onClose }: Props) {
       </div>
 
       <p className="text-sm text-slate-500">
-        Colunas aceitas: <code className="text-xs">lms, nome, departamento, cargo, turno, escala,
-        observacoes</code>. Apenas <strong>nome</strong> é obrigatório — o LMS pode ser preenchido depois,
+        Colunas aceitas: <code className="text-xs">lms, nome, departamento, cargo, escala, descrição escala,
+        tipo, observacoes</code>. Apenas <strong>nome</strong> é obrigatório — o LMS pode ser preenchido depois,
         na edição do colaborador.
       </p>
 
