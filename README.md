@@ -58,14 +58,21 @@ bipados pelo nome enquanto isso.
 O app mostra uma prévia com erros (linha sem nome, LMS duplicado) antes de
 confirmar a importação. Um modelo pode ser baixado direto na tela.
 
-### Atualizar o LMS de colaboradores já cadastrados
+### Atualizar o cadastro de colaboradores já existentes
 
-A importação por CSV acima só cria colaboradores novos. Para preencher o LMS
-de quem já está cadastrado (ex.: recebeu a lista oficial de LMS depois), use
-**Colaboradores → Atualizar LMS por nome** com um CSV de colunas `nome, lms`.
-O nome precisa bater exatamente (sem diferenciar maiúsculas/acentos) com o já
-cadastrado; a prévia mostra quem não foi encontrado, nomes duplicados no
-cadastro, e avisa quando o LMS já pertence a outra pessoa, antes de confirmar.
+A importação por CSV acima só cria colaboradores novos. Para atualizar quem
+já está cadastrado (ex.: recebeu uma base atualizada com LMS, departamento,
+cargo ou turno novos), use **Colaboradores → Atualizar cadastro por nome**
+com um CSV de colunas `nome, lms, departamento, cargo, turno, escala` — só
+**nome** é obrigatório, as outras colunas são opcionais e podem vir
+combinadas como quiser (por exemplo, um arquivo só com `nome, lms` continua
+funcionando como antes). O nome precisa bater exatamente (sem diferenciar
+maiúsculas/acentos) com o já cadastrado; a prévia mostra, linha a linha,
+exatamente quais campos vão mudar, quem não foi encontrado, nomes duplicados
+no cadastro, e avisa quando o LMS já pertence a outra pessoa, antes de
+confirmar. Como a atualização é feita pelo mesmo colaborador (mesmo
+registro interno), as batidas já registradas continuam associadas a ele
+normalmente, mesmo que o LMS ou o departamento mudem.
 
 ### Importar calendário de escalas (DSR) e pendências por escala
 

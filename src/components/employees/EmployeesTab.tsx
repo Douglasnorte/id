@@ -20,7 +20,17 @@ interface Props {
   setActive: (id: string, active: boolean) => Promise<{ message: string } | null>
   importEmployees: (rows: EmployeeInput[]) => Promise<{ message: string } | null>
   importCalendar: (rows: ShiftCalendarInput[]) => Promise<{ message: string } | null>
-  updateBadgeCodes: (updates: { id: string; name: string; badge_code: string }[]) => Promise<{ message: string } | null>
+  updateEmployeesBulk: (
+    updates: {
+      id: string
+      name: string
+      badge_code?: string
+      department?: string
+      role?: string
+      shift_group?: string
+      shift_label?: string
+    }[],
+  ) => Promise<{ message: string } | null>
 }
 
 type Panel = 'none' | 'form' | 'import' | 'importCalendar' | 'updateLms'
@@ -32,7 +42,7 @@ export default function EmployeesTab({
   setActive,
   importEmployees,
   importCalendar,
-  updateBadgeCodes,
+  updateEmployeesBulk,
 }: Props) {
   const [panel, setPanel] = useState<Panel>('none')
   const [editing, setEditing] = useState<Employee | null>(null)
@@ -74,8 +84,18 @@ export default function EmployeesTab({
     if (err) return err.message
   }
 
-  async function handleUpdateLms(updates: { id: string; name: string; badge_code: string }[]): Promise<string | void> {
-    const err = await updateBadgeCodes(updates)
+  async function handleUpdateLms(
+    updates: {
+      id: string
+      name: string
+      badge_code?: string
+      department?: string
+      role?: string
+      shift_group?: string
+      shift_label?: string
+    }[],
+  ): Promise<string | void> {
+    const err = await updateEmployeesBulk(updates)
     if (err) return err.message
   }
 
@@ -96,7 +116,7 @@ export default function EmployeesTab({
               onClick={() => setPanel('updateLms')}
               className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
             >
-              Atualizar LMS por nome
+              Atualizar cadastro por nome
             </button>
             <button
               onClick={() => setPanel('importCalendar')}
