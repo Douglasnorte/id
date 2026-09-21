@@ -56,6 +56,7 @@ export default function PendingList({ category, employees, eventsFor, isOffToday
     return Array.from(set).sort()
   }, [employees])
   const [deptFilter, setDeptFilter] = useState<string>('all')
+  const [search, setSearch] = useState('')
 
   const [now, setNow] = useState(() => Date.now())
   useEffect(() => {
@@ -107,11 +108,17 @@ export default function PendingList({ category, employees, eventsFor, isOffToday
     }
   }, [rows])
 
+  const visibleRows = useMemo(() => {
+    const term = search.trim().toLowerCase()
+    if (!term) return rows
+    return rows.filter((r) => r.employee.name.toLowerCase().includes(term))
+  }, [rows, search])
+
   return (
     <div className="rounded-2xl bg-white p-5 shadow-sm">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-base font-semibold text-slate-900">Situação de hoje</h2>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {departments.length > 1 && (
             <select
               value={deptFilter}
@@ -126,6 +133,12 @@ export default function PendingList({ category, employees, eventsFor, isOffToday
               ))}
             </select>
           )}
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Buscar por nome"
+            className="rounded-lg border border-slate-300 px-2 py-1 text-xs text-slate-600"
+          />
           <span className="text-xs text-slate-400">{counts.total} colaboradores ativos</span>
         </div>
       </div>
@@ -150,7 +163,7 @@ export default function PendingList({ category, employees, eventsFor, isOffToday
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {rows.map(({ employee, statusKey, lastEvent, durationMs, overLimit }) => (
+            {visibleRows.map(({ employee, statusKey, lastEvent, durationMs, overLimit }) => (
               <tr key={employee.id}>
                 <td className="py-2">
                   <div className="font-medium text-slate-800">{employee.name}</div>
@@ -195,10 +208,10 @@ export default function PendingList({ category, employees, eventsFor, isOffToday
                 </td>
               </tr>
             ))}
-            {rows.length === 0 && (
+            {visibleRows.length === 0 && (
               <tr>
                 <td colSpan={isLunch ? 5 : 4} className="py-6 text-center text-slate-400">
-                  Nenhum colaborador ativo cadastrado.
+                  {rows.length === 0 ? 'Nenhum colaborador ativo cadastrado.' : 'Nenhum colaborador encontrado.'}
                 </td>
               </tr>
             )}
