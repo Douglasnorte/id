@@ -5,7 +5,17 @@ import { downloadTextFile } from '../../lib/employeeCsv'
 
 interface Props {
   employees: Employee[]
-  onUpdate: (updates: { id: string; name: string; badge_code: string }[]) => Promise<string | void>
+  onUpdate: (
+    updates: {
+      id: string
+      name: string
+      badge_code?: string
+      department?: string
+      role?: string
+      shift_group?: string
+      shift_label?: string
+    }[],
+  ) => Promise<string | void>
   onClose: () => void
 }
 
@@ -52,7 +62,17 @@ export default function ImportLmsUpdate({ employees, onUpdate, onClose }: Props)
     if (applicable.length === 0) return
     setApplying(true)
     setError(null)
-    const err = await onUpdate(applicable.map((r) => ({ id: r.employee!.id, name: r.employee!.name, badge_code: r.lms! })))
+    const err = await onUpdate(
+      applicable.map((r) => ({
+        id: r.employee!.id,
+        name: r.employee!.name,
+        badge_code: r.changes.badge_code,
+        department: r.changes.department,
+        role: r.changes.role,
+        shift_group: r.changes.shift_group,
+        shift_label: r.changes.shift_label,
+      })),
+    )
     setApplying(false)
     if (err) setError(err)
     else onClose()
@@ -61,15 +81,17 @@ export default function ImportLmsUpdate({ employees, onUpdate, onClose }: Props)
   return (
     <div className="space-y-4 rounded-2xl bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between">
-        <h2 className="text-base font-semibold text-slate-900">Atualizar LMS por nome</h2>
+        <h2 className="text-base font-semibold text-slate-900">Atualizar cadastro por nome</h2>
         <button onClick={onClose} className="text-sm font-medium text-slate-500 hover:underline">
           Fechar
         </button>
       </div>
 
       <p className="text-sm text-slate-500">
-        Para colaboradores já cadastrados sem LMS (ou com o LMS errado). Colunas:{' '}
-        <code className="text-xs">nome, lms</code>. O nome precisa bater exatamente com o já cadastrado.
+        Para colaboradores já cadastrados — atualiza os campos que vierem preenchidos, sem mexer no resto.
+        Colunas aceitas: <code className="text-xs">nome, lms, departamento, cargo, turno, escala</code> (só{' '}
+        <code className="text-xs">nome</code> é obrigatório; as outras são opcionais e podem vir combinadas
+        como quiser). O nome precisa bater exatamente com o já cadastrado.
       </p>
 
       <div className="flex flex-wrap items-center gap-3">
@@ -93,7 +115,7 @@ export default function ImportLmsUpdate({ employees, onUpdate, onClose }: Props)
         {fileName && <span className="text-sm text-slate-500">{fileName}</span>}
 
         <button
-          onClick={() => downloadTextFile('modelo-atualizar-lms.csv', lmsUpdateCsvTemplate())}
+          onClick={() => downloadTextFile('modelo-atualizar-cadastro.csv', lmsUpdateCsvTemplate())}
           className="ml-auto text-sm font-medium text-brand-700 hover:underline"
         >
           Baixar modelo CSV
@@ -115,9 +137,7 @@ export default function ImportLmsUpdate({ employees, onUpdate, onClose }: Props)
                 <tr>
                   <th className="px-3 py-2">Linha</th>
                   <th className="px-3 py-2">Nome</th>
-                  <th className="px-3 py-2">LMS atual</th>
-                  <th className="px-3 py-2">LMS novo</th>
-                  <th className="px-3 py-2">Situação</th>
+                  <th className="px-3 py-2">Situação / mudanças</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -125,8 +145,6 @@ export default function ImportLmsUpdate({ employees, onUpdate, onClose }: Props)
                   <tr key={r.row}>
                     <td className="px-3 py-1.5 text-slate-400">{r.row}</td>
                     <td className="px-3 py-1.5">{r.name || '—'}</td>
-                    <td className="px-3 py-1.5 font-mono text-slate-500">{r.employee?.badge_code ?? '—'}</td>
-                    <td className="px-3 py-1.5 font-mono text-slate-700">{r.lms ?? '—'}</td>
                     <td className={`px-3 py-1.5 ${STATUS_STYLE[r.status]}`}>{r.message || STATUS_LABEL[r.status]}</td>
                   </tr>
                 ))}

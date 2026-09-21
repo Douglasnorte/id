@@ -102,12 +102,23 @@ export function useEmployees() {
   }
 
   /**
-   * Atualiza só o LMS de vários colaboradores já cadastrados (por id).
+   * Atualiza campos (LMS, departamento, cargo, turno, escala) de vários
+   * colaboradores já cadastrados de uma vez (por id, importação por nome).
    * O upsert do Postgres valida colunas NOT NULL (como "name") antes de
    * resolver o conflito, mesmo quando o resultado é um UPDATE — por isso
    * o nome atual precisa vir junto, mesmo sem mudar.
    */
-  async function updateBadgeCodes(updates: { id: string; name: string; badge_code: string }[]) {
+  async function updateEmployeesBulk(
+    updates: {
+      id: string
+      name: string
+      badge_code?: string
+      department?: string
+      role?: string
+      shift_group?: string
+      shift_label?: string
+    }[],
+  ) {
     const { error: err } = await supabase.from('employees').upsert(updates, { onConflict: 'id' })
     if (!err) await reload()
     return err
@@ -122,6 +133,6 @@ export function useEmployees() {
     updateEmployee,
     setActive,
     importEmployees,
-    updateBadgeCodes,
+    updateEmployeesBulk,
   }
 }
