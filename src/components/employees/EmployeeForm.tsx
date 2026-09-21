@@ -8,6 +8,7 @@ export interface EmployeeFormValues {
   role: string
   shift_group: string
   shift_label: string
+  employment_type: string
   notes: string
 }
 
@@ -24,6 +25,7 @@ const EMPTY: EmployeeFormValues = {
   role: '',
   shift_group: '',
   shift_label: '',
+  employment_type: '',
   notes: '',
 }
 
@@ -41,6 +43,7 @@ export default function EmployeeForm({ initial, onCancel, onSubmit }: Props) {
         role: initial.role ?? '',
         shift_group: initial.shift_group ?? '',
         shift_label: initial.shift_label ?? '',
+        employment_type: initial.employment_type ?? '',
         notes: initial.notes ?? '',
       })
     } else {
@@ -112,6 +115,15 @@ export default function EmployeeForm({ initial, onCancel, onSubmit }: Props) {
             value={values.shift_label}
             onChange={(e) => setValues((v) => ({ ...v, shift_label: e.target.value }))}
             placeholder="Ex: 5x2 - 01:30 as 10:48"
+            className="input"
+          />
+        </Field>
+
+        <Field label="Tipo">
+          <input
+            value={values.employment_type}
+            onChange={(e) => setValues((v) => ({ ...v, employment_type: e.target.value }))}
+            placeholder="Ex: Efetivo, Temporário"
             className="input"
           />
         </Field>

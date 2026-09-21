@@ -14,6 +14,7 @@ interface Props {
       role?: string
       shift_group?: string
       shift_label?: string
+      employment_type?: string
     }[],
   ) => Promise<string | void>
   onClose: () => void
@@ -71,6 +72,7 @@ export default function ImportLmsUpdate({ employees, onUpdate, onClose }: Props)
         role: r.changes.role,
         shift_group: r.changes.shift_group,
         shift_label: r.changes.shift_label,
+        employment_type: r.changes.employment_type,
       })),
     )
     setApplying(false)
@@ -89,8 +91,8 @@ export default function ImportLmsUpdate({ employees, onUpdate, onClose }: Props)
 
       <p className="text-sm text-slate-500">
         Para colaboradores já cadastrados — atualiza os campos que vierem preenchidos, sem mexer no resto.
-        Colunas aceitas: <code className="text-xs">nome, lms, departamento, cargo, turno, escala</code> (só{' '}
-        <code className="text-xs">nome</code> é obrigatório; as outras são opcionais e podem vir combinadas
+        Colunas aceitas: <code className="text-xs">nome, lms, departamento, cargo, escala, descrição escala, tipo</code>{' '}
+        (só <code className="text-xs">nome</code> é obrigatório; as outras são opcionais e podem vir combinadas
         como quiser). O nome precisa bater exatamente com o já cadastrado.
       </p>
 

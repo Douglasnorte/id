@@ -9,6 +9,7 @@ export interface EmployeeInput {
   role?: string | null
   shift_group?: string | null
   shift_label?: string | null
+  employment_type?: string | null
   notes?: string | null
 }
 
@@ -64,6 +65,7 @@ export function useEmployees() {
       role: input.role || null,
       shift_group: input.shift_group || null,
       shift_label: input.shift_label || null,
+      employment_type: input.employment_type || null,
       notes: input.notes || null,
     })
     if (!err) await reload()
@@ -73,7 +75,10 @@ export function useEmployees() {
   async function updateEmployee(
     id: string,
     changes: Partial<
-      Pick<Employee, 'name' | 'badge_code' | 'department' | 'role' | 'shift_group' | 'shift_label' | 'notes' | 'active'>
+      Pick<
+        Employee,
+        'name' | 'badge_code' | 'department' | 'role' | 'shift_group' | 'shift_label' | 'employment_type' | 'notes' | 'active'
+      >
     >,
   ) {
     const { error: err } = await supabase.from('employees').update(changes).eq('id', id)
@@ -94,6 +99,7 @@ export function useEmployees() {
       role: input.role || null,
       shift_group: input.shift_group || null,
       shift_label: input.shift_label || null,
+      employment_type: input.employment_type || null,
       notes: input.notes || null,
     }))
     const { error: err } = await supabase.from('employees').insert(rows)
@@ -117,6 +123,7 @@ export function useEmployees() {
       role?: string
       shift_group?: string
       shift_label?: string
+      employment_type?: string
     }[],
   ) {
     const { error: err } = await supabase.from('employees').upsert(updates, { onConflict: 'id' })

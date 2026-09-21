@@ -51,26 +51,35 @@ busca pelo nome do colaborador.
 ### Importar colaboradores por CSV
 
 Na aba **Colaboradores → Importar CSV**, suba um arquivo com as colunas
-`lms, nome, departamento, cargo, turno, escala, observacoes` (cabeçalho
-livre de acentos/maiúsculas). Só **nome** é obrigatório — colaboradores sem
-LMS entram como "Pendente" e podem ser completados depois pela edição, ou
-bipados pelo nome enquanto isso.
+`lms, nome, departamento, cargo, escala, descrição escala, tipo, observacoes`
+(cabeçalho livre de acentos/maiúsculas). Só **nome** é obrigatório —
+colaboradores sem LMS entram como "Pendente" e podem ser completados depois
+pela edição, ou bipados pelo nome enquanto isso.
 O app mostra uma prévia com erros (linha sem nome, LMS duplicado) antes de
 confirmar a importação. Um modelo pode ser baixado direto na tela.
+
+**Sobre as colunas de escala:** quando o arquivo tem só uma coluna chamada
+`escala`, ela é tratada como a descrição por extenso (ex.: "5x2 - 01:30 as
+10:48"), do jeito mais antigo. Se o arquivo trouxer `escala` **e**
+`descrição escala` juntas (o formato comum em planilhas de RH, onde "Escala"
+é o grupo/turno como "2 TURNO/ SD D" e "Descrição Escala" é o horário por
+extenso), o app entende automaticamente que `escala` é o turno/grupo — não
+precisa renomear nada. `turno`/`grupo` também são aceitos como sinônimo
+explícito do turno, se preferir deixar isso claro no arquivo.
 
 ### Atualizar o cadastro de colaboradores já existentes
 
 A importação por CSV acima só cria colaboradores novos. Para atualizar quem
 já está cadastrado (ex.: recebeu uma base atualizada com LMS, departamento,
 cargo ou turno novos), use **Colaboradores → Atualizar cadastro por nome**
-com um CSV de colunas `nome, lms, departamento, cargo, turno, escala` — só
-**nome** é obrigatório, as outras colunas são opcionais e podem vir
-combinadas como quiser (por exemplo, um arquivo só com `nome, lms` continua
-funcionando como antes). O nome precisa bater exatamente (sem diferenciar
-maiúsculas/acentos) com o já cadastrado; a prévia mostra, linha a linha,
-exatamente quais campos vão mudar, quem não foi encontrado, nomes duplicados
-no cadastro, e avisa quando o LMS já pertence a outra pessoa, antes de
-confirmar. Como a atualização é feita pelo mesmo colaborador (mesmo
+com um CSV de colunas `nome, lms, departamento, cargo, escala, descrição
+escala, tipo` — só **nome** é obrigatório, as outras colunas são opcionais e
+podem vir combinadas como quiser (por exemplo, um arquivo só com `nome, lms`
+continua funcionando como antes). O nome precisa bater exatamente (sem
+diferenciar maiúsculas/acentos) com o já cadastrado; a prévia mostra, linha a
+linha, exatamente quais campos vão mudar, quem não foi encontrado, nomes
+duplicados no cadastro, e avisa quando o LMS já pertence a outra pessoa,
+antes de confirmar. Como a atualização é feita pelo mesmo colaborador (mesmo
 registro interno), as batidas já registradas continuam associadas a ele
 normalmente, mesmo que o LMS ou o departamento mudem.
 

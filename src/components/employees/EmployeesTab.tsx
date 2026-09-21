@@ -14,7 +14,10 @@ interface Props {
   updateEmployee: (
     id: string,
     changes: Partial<
-      Pick<Employee, 'name' | 'badge_code' | 'department' | 'role' | 'shift_group' | 'shift_label' | 'notes' | 'active'>
+      Pick<
+        Employee,
+        'name' | 'badge_code' | 'department' | 'role' | 'shift_group' | 'shift_label' | 'employment_type' | 'notes' | 'active'
+      >
     >,
   ) => Promise<{ message: string } | null>
   setActive: (id: string, active: boolean) => Promise<{ message: string } | null>
@@ -29,6 +32,7 @@ interface Props {
       role?: string
       shift_group?: string
       shift_label?: string
+      employment_type?: string
     }[],
   ) => Promise<{ message: string } | null>
 }
@@ -65,6 +69,7 @@ export default function EmployeesTab({
       role: values.role || null,
       shift_group: values.shift_group || null,
       shift_label: values.shift_label || null,
+      employment_type: values.employment_type || null,
       notes: values.notes || null,
     }
 
@@ -93,6 +98,7 @@ export default function EmployeesTab({
       role?: string
       shift_group?: string
       shift_label?: string
+      employment_type?: string
     }[],
   ): Promise<string | void> {
     const err = await updateEmployeesBulk(updates)
