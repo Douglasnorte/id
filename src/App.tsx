@@ -96,6 +96,7 @@ export default function App() {
             importEmployees={employeesState.importEmployees}
             importCalendar={shiftCalendarState.importCalendar}
             updateEmployeesBulk={employeesState.updateEmployeesBulk}
+            deleteEmployeesByIds={employeesState.deleteEmployeesByIds}
           />
         )}
       </main>
