@@ -73,15 +73,22 @@ A importação por CSV acima só cria colaboradores novos. Para atualizar quem
 já está cadastrado (ex.: recebeu uma base atualizada com LMS, departamento,
 cargo ou turno novos), use **Colaboradores → Atualizar cadastro por nome**
 com um CSV de colunas `nome, lms, departamento, cargo, escala, descrição
-escala, tipo` — só **nome** é obrigatório, as outras colunas são opcionais e
-podem vir combinadas como quiser (por exemplo, um arquivo só com `nome, lms`
-continua funcionando como antes). O nome precisa bater exatamente (sem
-diferenciar maiúsculas/acentos) com o já cadastrado; a prévia mostra, linha a
-linha, exatamente quais campos vão mudar, quem não foi encontrado, nomes
-duplicados no cadastro, e avisa quando o LMS já pertence a outra pessoa,
-antes de confirmar. Como a atualização é feita pelo mesmo colaborador (mesmo
-registro interno), as batidas já registradas continuam associadas a ele
-normalmente, mesmo que o LMS ou o departamento mudem.
+escala, tipo, status` — só **nome** é obrigatório, as outras colunas são
+opcionais e podem vir combinadas como quiser (por exemplo, um arquivo só com
+`nome, lms` continua funcionando como antes). A coluna `status` aceita
+"ativo"/"inativo" (ou sim/não, true/false) para ativar ou desativar em
+massa — útil para substituir toda uma escala por uma planilha nova: importe
+os dados de quem deve ficar (LMS/departamento/turno) e, à parte, um CSV só
+com `nome, status` marcando "inativo" para quem não está mais na planilha
+nova. O nome precisa bater exatamente (sem diferenciar maiúsculas/acentos)
+com o já cadastrado; a prévia mostra, linha a linha, exatamente quais campos
+vão mudar, quem não foi encontrado, nomes duplicados no cadastro, e avisa
+quando o LMS já pertence a outra pessoa, antes de confirmar. Como a
+atualização é feita pelo mesmo colaborador (mesmo registro interno), as
+batidas já registradas continuam associadas a ele normalmente, mesmo que o
+LMS, o departamento ou o status mudem — desativar não apaga nenhum histórico
+nem exclui o colaborador do banco, só some da lista de pendências e do
+cadastro padrão (pode reativar quando quiser).
 
 ### Importar calendário de escalas (DSR) e pendências por escala
 

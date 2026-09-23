@@ -15,6 +15,7 @@ interface Props {
       shift_group?: string
       shift_label?: string
       employment_type?: string
+      active?: boolean
     }[],
   ) => Promise<string | void>
   onClose: () => void
@@ -73,6 +74,7 @@ export default function ImportLmsUpdate({ employees, onUpdate, onClose }: Props)
         shift_group: r.changes.shift_group,
         shift_label: r.changes.shift_label,
         employment_type: r.changes.employment_type,
+        active: r.changes.active,
       })),
     )
     setApplying(false)
@@ -91,9 +93,10 @@ export default function ImportLmsUpdate({ employees, onUpdate, onClose }: Props)
 
       <p className="text-sm text-slate-500">
         Para colaboradores já cadastrados — atualiza os campos que vierem preenchidos, sem mexer no resto.
-        Colunas aceitas: <code className="text-xs">nome, lms, departamento, cargo, escala, descrição escala, tipo</code>{' '}
+        Colunas aceitas: <code className="text-xs">nome, lms, departamento, cargo, escala, descrição escala, tipo, status</code>{' '}
         (só <code className="text-xs">nome</code> é obrigatório; as outras são opcionais e podem vir combinadas
-        como quiser). O nome precisa bater exatamente com o já cadastrado.
+        como quiser). A coluna <code className="text-xs">status</code> aceita "ativo"/"inativo" para desativar ou
+        reativar em massa. O nome precisa bater exatamente com o já cadastrado.
       </p>
 
       <div className="flex flex-wrap items-center gap-3">
