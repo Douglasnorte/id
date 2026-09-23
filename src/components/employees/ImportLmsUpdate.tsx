@@ -96,7 +96,9 @@ export default function ImportLmsUpdate({ employees, onUpdate, onClose }: Props)
         Colunas aceitas: <code className="text-xs">nome, lms, departamento, cargo, escala, descrição escala, tipo, status</code>{' '}
         (só <code className="text-xs">nome</code> é obrigatório; as outras são opcionais e podem vir combinadas
         como quiser). A coluna <code className="text-xs">status</code> aceita "ativo"/"inativo" para desativar ou
-        reativar em massa. O nome precisa bater exatamente com o já cadastrado.
+        reativar em massa. Célula em branco não mexe no campo; um <code className="text-xs">-</code> (traço) limpa
+        o campo de propósito, caso algum dado tenha ficado errado. O nome precisa bater exatamente com o já
+        cadastrado.
       </p>
 
       <div className="flex flex-wrap items-center gap-3">

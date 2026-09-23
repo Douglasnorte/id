@@ -80,7 +80,10 @@ opcionais e podem vir combinadas como quiser (por exemplo, um arquivo só com
 massa — útil para substituir toda uma escala por uma planilha nova: importe
 os dados de quem deve ficar (LMS/departamento/turno) e, à parte, um CSV só
 com `nome, status` marcando "inativo" para quem não está mais na planilha
-nova. O nome precisa bater exatamente (sem diferenciar maiúsculas/acentos)
+nova. Célula em branco não mexe naquele campo; um traço (`-`) sozinho na
+célula limpa o campo de propósito (útil pra corrigir um turno ou LMS que
+ficou errado numa importação anterior). O nome precisa bater exatamente
+(sem diferenciar maiúsculas/acentos)
 com o já cadastrado; a prévia mostra, linha a linha, exatamente quais campos
 vão mudar, quem não foi encontrado, nomes duplicados no cadastro, e avisa
 quando o LMS já pertence a outra pessoa, antes de confirmar. Como a
