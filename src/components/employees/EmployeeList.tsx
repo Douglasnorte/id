@@ -12,12 +12,19 @@ type Filter = 'all' | 'active' | 'inactive'
 export default function EmployeeList({ employees, onEdit, onToggleActive }: Props) {
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<Filter>('active')
+  const [deptFilter, setDeptFilter] = useState('all')
+
+  const departments = useMemo(() => {
+    const set = new Set(employees.filter((e) => e.department).map((e) => e.department as string))
+    return Array.from(set).sort()
+  }, [employees])
 
   const rows = useMemo(() => {
     const term = search.trim().toLowerCase()
     return employees.filter((e) => {
       if (filter === 'active' && !e.active) return false
       if (filter === 'inactive' && e.active) return false
+      if (deptFilter !== 'all' && e.department !== deptFilter) return false
       if (!term) return true
       return (
         e.name.toLowerCase().includes(term) ||
@@ -25,13 +32,13 @@ export default function EmployeeList({ employees, onEdit, onToggleActive }: Prop
         (e.department ?? '').toLowerCase().includes(term)
       )
     })
-  }, [employees, search, filter])
+  }, [employees, search, filter, deptFilter])
 
   return (
     <div className="rounded-2xl bg-white p-5 shadow-sm">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-base font-semibold text-slate-900">Colaboradores cadastrados</h2>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value as Filter)}
@@ -41,6 +48,20 @@ export default function EmployeeList({ employees, onEdit, onToggleActive }: Prop
             <option value="inactive">Inativos</option>
             <option value="all">Todos</option>
           </select>
+          {departments.length > 1 && (
+            <select
+              value={deptFilter}
+              onChange={(e) => setDeptFilter(e.target.value)}
+              className="rounded-lg border border-slate-300 px-2 py-1.5 text-sm"
+            >
+              <option value="all">Todos os departamentos</option>
+              {departments.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+          )}
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
