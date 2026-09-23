@@ -140,6 +140,10 @@ export function parseLmsUpdateCsv(csvText: string, employees: Employee[]): Parse
       if (!trimmed) continue
       if (field === 'name') name = trimmed
       else if (field === 'active') activeValue = parseActive(trimmed)
+      // "-" é um marcador explícito para limpar o campo (ex.: turno que não
+      // deveria ter sido preenchido) — célula em branco de verdade continua
+      // significando "não mexe nesse campo".
+      else if (trimmed === '-') fields[field] = ''
       else if (field === 'badge_code') fields.badge_code = trimmed.replace(/\D/g, '') || undefined
       else fields[field] = trimmed
     }
@@ -216,10 +220,11 @@ export function parseLmsUpdateCsv(csvText: string, employees: Employee[]): Parse
     let hasNewLms = false
 
     for (const [field, newValue] of Object.entries(fields) as [StringUpdatableField, string][]) {
-      if (newValue === current[field]) continue
+      const currentValue = current[field] ?? ''
+      if (newValue === currentValue) continue
       changes[field] = newValue
-      diffLines.push(`${FIELD_LABEL[field]}: ${current[field] ?? '—'} → ${newValue}`)
-      if (field === 'badge_code' && current.badge_code) hasNewLms = true
+      diffLines.push(`${FIELD_LABEL[field]}: ${current[field] ?? '—'} → ${newValue || '(vazio)'}`)
+      if (field === 'badge_code' && current.badge_code && newValue) hasNewLms = true
     }
 
     if (activeValue !== undefined && activeValue !== employee.active) {
@@ -246,6 +251,9 @@ export function parseLmsUpdateCsv(csvText: string, employees: Employee[]): Parse
 export function lmsUpdateCsvTemplate(): string {
   return Papa.unparse({
     fields: ['nome', 'lms', 'departamento', 'cargo', 'escala', 'descricao escala', 'tipo'],
-    data: [['Maria da Silva', '12345', 'SVC AM', 'Operadora', 'A', '5x2 - 01:30 as 10:48', 'Efetivo']],
+    data: [
+      ['Maria da Silva', '12345', 'SVC AM', 'Operadora', 'A', '5x2 - 01:30 as 10:48', 'Efetivo'],
+      ['Joao Souza', '', '', '', '-', '', ''],
+    ],
   })
 }

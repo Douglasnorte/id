@@ -127,7 +127,18 @@ export function useEmployees() {
       active?: boolean
     }[],
   ) {
-    const { error: err } = await supabase.from('employees').upsert(updates, { onConflict: 'id' })
+    // Uma string vazia é o sinal de "limpar esse campo" vindo do CSV — o
+    // banco guarda ausência de valor como null, não como string vazia.
+    const rows = updates.map((u) => ({
+      ...u,
+      badge_code: u.badge_code === '' ? null : u.badge_code,
+      department: u.department === '' ? null : u.department,
+      role: u.role === '' ? null : u.role,
+      shift_group: u.shift_group === '' ? null : u.shift_group,
+      shift_label: u.shift_label === '' ? null : u.shift_label,
+      employment_type: u.employment_type === '' ? null : u.employment_type,
+    }))
+    const { error: err } = await supabase.from('employees').upsert(rows, { onConflict: 'id' })
     if (!err) await reload()
     return err
   }

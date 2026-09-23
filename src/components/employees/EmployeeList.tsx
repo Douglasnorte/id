@@ -77,9 +77,9 @@ export default function EmployeeList({ employees, onEdit, onToggleActive }: Prop
             <tr>
               <th className="pb-2">LMS</th>
               <th className="pb-2">Nome</th>
-              <th className="pb-2">Departamento</th>
-              <th className="pb-2">Turno</th>
+              <th className="pb-2">Operação</th>
               <th className="pb-2">Escala</th>
+              <th className="pb-2">Descrição Escala</th>
               <th className="pb-2">Status</th>
               <th className="pb-2 text-right">Ações</th>
             </tr>
