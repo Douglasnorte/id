@@ -4,6 +4,7 @@ import EmployeeList from './EmployeeList'
 import ImportCsv from './ImportCsv'
 import ImportShiftCalendar from './ImportShiftCalendar'
 import ImportLmsUpdate from './ImportLmsUpdate'
+import DeleteEmployees from './DeleteEmployees'
 import type { EmployeeInput } from '../../hooks/useEmployees'
 import type { ShiftCalendarInput } from '../../hooks/useShiftCalendar'
 import type { Employee } from '../../types'
@@ -36,9 +37,10 @@ interface Props {
       active?: boolean
     }[],
   ) => Promise<{ message: string } | null>
+  deleteEmployeesByIds: (ids: string[]) => Promise<{ message: string } | null>
 }
 
-type Panel = 'none' | 'form' | 'import' | 'importCalendar' | 'updateLms'
+type Panel = 'none' | 'form' | 'import' | 'importCalendar' | 'updateLms' | 'delete'
 
 export default function EmployeesTab({
   employees,
@@ -48,6 +50,7 @@ export default function EmployeesTab({
   importEmployees,
   importCalendar,
   updateEmployeesBulk,
+  deleteEmployeesByIds,
 }: Props) {
   const [panel, setPanel] = useState<Panel>('none')
   const [editing, setEditing] = useState<Employee | null>(null)
@@ -111,6 +114,11 @@ export default function EmployeesTab({
     await setActive(employee.id, !employee.active)
   }
 
+  async function handleDelete(ids: string[]): Promise<string | void> {
+    const err = await deleteEmployeesByIds(ids)
+    if (err) return err.message
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -144,6 +152,12 @@ export default function EmployeesTab({
             >
               + Novo colaborador
             </button>
+            <button
+              onClick={() => setPanel('delete')}
+              className="rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
+            >
+              Excluir colaboradores por nome
+            </button>
           </div>
         )}
       </div>
@@ -169,6 +183,10 @@ export default function EmployeesTab({
 
       {panel === 'updateLms' && (
         <ImportLmsUpdate employees={employees} onUpdate={handleUpdateLms} onClose={() => setPanel('none')} />
+      )}
+
+      {panel === 'delete' && (
+        <DeleteEmployees employees={employees} onDelete={handleDelete} onClose={() => setPanel('none')} />
       )}
 
       <EmployeeList employees={employees} onEdit={openEdit} onToggleActive={handleToggleActive} />

@@ -90,6 +90,17 @@ LMS, o departamento ou o status mudem — desativar não apaga nenhum histórico
 nem exclui o colaborador do banco, só some da lista de pendências e do
 cadastro padrão (pode reativar quando quiser).
 
+### Excluir colaboradores de vez
+
+**Diferente de desativar**, isso apaga o colaborador para sempre — inclusive
+todo o histórico de batidas dele, mesmo as de hoje. Não tem como desfazer.
+Em **Colaboradores → Excluir colaboradores por nome**, suba um CSV com uma
+coluna `nome` (um colaborador por linha); a prévia mostra quem foi
+encontrado antes de pedir a confirmação (é preciso digitar "EXCLUIR" para
+liberar o botão). Use só quando realmente quiser perder o histórico — na
+maioria dos casos (alguém saiu da empresa, uma escala nova não inclui mais
+essa pessoa) desativar é a opção mais segura e reversível.
+
 ### Importar calendário de escalas (DSR) e pendências por escala
 
 Em times com escala revezada (ex.: 4 grupos A/B/C/D, cada um de folga em dias

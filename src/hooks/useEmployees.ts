@@ -132,6 +132,22 @@ export function useEmployees() {
     return err
   }
 
+  /**
+   * Exclui um lote de colaboradores (por id) para sempre — inclusive todo o
+   * histórico de batidas deles, já que a tabela time_events não permite
+   * apagar um colaborador enquanto sobrar alguma batida vinculada (proteção
+   * do banco contra perda acidental de histórico). Sem volta: só use depois
+   * de confirmação explícita do usuário.
+   */
+  async function deleteEmployeesByIds(ids: string[]) {
+    if (ids.length === 0) return null
+    const { error: eventsErr } = await supabase.from('time_events').delete().in('employee_id', ids)
+    if (eventsErr) return eventsErr
+    const { error: empErr } = await supabase.from('employees').delete().in('id', ids)
+    if (!empErr) await reload()
+    return empErr
+  }
+
   return {
     employees,
     loading,
@@ -142,5 +158,6 @@ export function useEmployees() {
     setActive,
     importEmployees,
     updateEmployeesBulk,
+    deleteEmployeesByIds,
   }
 }
