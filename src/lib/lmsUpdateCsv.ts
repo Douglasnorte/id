@@ -10,6 +10,7 @@ export interface EmployeeUpdateFields {
   shift_group?: string
   shift_label?: string
   employment_type?: string
+  active?: boolean
 }
 
 export interface ParsedLmsRow {
@@ -22,8 +23,8 @@ export interface ParsedLmsRow {
   message: string
 }
 
-type Field = 'name' | keyof EmployeeUpdateFields
-type UpdatableField = keyof EmployeeUpdateFields
+type StringUpdatableField = Exclude<keyof EmployeeUpdateFields, 'active'>
+type Field = 'name' | 'active' | StringUpdatableField
 
 const HEADER_ALIASES: Record<string, Field> = {
   nome: 'name',
@@ -51,15 +52,29 @@ const HEADER_ALIASES: Record<string, Field> = {
   'horário': 'shift_label',
   tipo: 'employment_type',
   'tipo de contrato': 'employment_type',
+  status: 'active',
+  ativo: 'active',
+  situacao: 'active',
+  'situação': 'active',
 }
 
-const FIELD_LABEL: Record<UpdatableField, string> = {
+const FIELD_LABEL: Record<StringUpdatableField, string> = {
   badge_code: 'LMS',
   department: 'Departamento',
   role: 'Cargo',
   shift_group: 'Turno',
   shift_label: 'Escala',
   employment_type: 'Tipo',
+}
+
+const TRUE_VALUES = new Set(['ativo', 'sim', 'true', '1', 'yes'])
+const FALSE_VALUES = new Set(['inativo', 'nao', 'não', 'false', '0', 'no'])
+
+function parseActive(value: string): boolean | undefined {
+  const v = value.trim().toLowerCase()
+  if (TRUE_VALUES.has(v)) return true
+  if (FALSE_VALUES.has(v)) return false
+  return undefined
 }
 
 function normalizeHeader(header: string): string {
@@ -116,13 +131,15 @@ export function parseLmsUpdateCsv(csvText: string, employees: Employee[]): Parse
     const rowNumber = index + 2
 
     let name = ''
-    const fields: Partial<Record<UpdatableField, string>> = {}
+    let activeValue: boolean | undefined
+    const fields: Partial<Record<StringUpdatableField, string>> = {}
     for (const [header, value] of Object.entries(raw)) {
       const field = aliases[normalizeHeader(header)]
       if (!field || value == null) continue
       const trimmed = String(value).trim()
       if (!trimmed) continue
       if (field === 'name') name = trimmed
+      else if (field === 'active') activeValue = parseActive(trimmed)
       else if (field === 'badge_code') fields.badge_code = trimmed.replace(/\D/g, '') || undefined
       else fields[field] = trimmed
     }
@@ -131,7 +148,7 @@ export function parseLmsUpdateCsv(csvText: string, employees: Employee[]): Parse
     if (!name) {
       return { row: rowNumber, name, lms, changes: {}, employee: null, status: 'not_found', message: 'Sem nome — linha ignorada.' }
     }
-    if (Object.keys(fields).length === 0) {
+    if (Object.keys(fields).length === 0 && activeValue === undefined) {
       return { row: rowNumber, name, lms, changes: {}, employee: null, status: 'not_found', message: 'Sem nada para atualizar nessa linha.' }
     }
 
@@ -185,7 +202,7 @@ export function parseLmsUpdateCsv(csvText: string, employees: Employee[]): Parse
       lmsSeenInFile.add(lms)
     }
 
-    const current: Record<UpdatableField, string | null> = {
+    const current: Record<StringUpdatableField, string | null> = {
       badge_code: employee.badge_code,
       department: employee.department,
       role: employee.role,
@@ -198,11 +215,16 @@ export function parseLmsUpdateCsv(csvText: string, employees: Employee[]): Parse
     const diffLines: string[] = []
     let hasNewLms = false
 
-    for (const [field, newValue] of Object.entries(fields) as [UpdatableField, string][]) {
+    for (const [field, newValue] of Object.entries(fields) as [StringUpdatableField, string][]) {
       if (newValue === current[field]) continue
       changes[field] = newValue
       diffLines.push(`${FIELD_LABEL[field]}: ${current[field] ?? '—'} → ${newValue}`)
       if (field === 'badge_code' && current.badge_code) hasNewLms = true
+    }
+
+    if (activeValue !== undefined && activeValue !== employee.active) {
+      changes.active = activeValue
+      diffLines.push(`Status: ${employee.active ? 'Ativo' : 'Inativo'} → ${activeValue ? 'Ativo' : 'Inativo'}`)
     }
 
     if (diffLines.length === 0) {

@@ -124,6 +124,7 @@ export function useEmployees() {
       shift_group?: string
       shift_label?: string
       employment_type?: string
+      active?: boolean
     }[],
   ) {
     const { error: err } = await supabase.from('employees').upsert(updates, { onConflict: 'id' })

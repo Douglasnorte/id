@@ -33,6 +33,7 @@ interface Props {
       shift_group?: string
       shift_label?: string
       employment_type?: string
+      active?: boolean
     }[],
   ) => Promise<{ message: string } | null>
 }
@@ -99,6 +100,7 @@ export default function EmployeesTab({
       shift_group?: string
       shift_label?: string
       employment_type?: string
+      active?: boolean
     }[],
   ): Promise<string | void> {
     const err = await updateEmployeesBulk(updates)
