@@ -1,21 +1,10 @@
 import type { Employee } from '../types'
 import type { OndaRotas } from './expedicaoTxt'
 
-export interface SorteioRow {
-  vaga: number
-  colaborador: string
-  employeeId: string
-  rotasPorOnda: Record<number, string>
-}
-
-export interface RotaNaoPreenchida {
+export interface Assignment {
   onda: number
   rota: string
-}
-
-export interface SorteioResultado {
-  rows: SorteioRow[]
-  rotasNaoPreenchidas: RotaNaoPreenchida[]
+  colaborador: string
 }
 
 function shuffle<T>(items: T[]): T[] {
@@ -32,37 +21,18 @@ function shuffle<T>(items: T[]): T[] {
  * ninguém dentro da mesma onda (fisicamente não dá pra fazer duas rotas na
  * mesma leva ao mesmo tempo). O mesmo colaborador pode aparecer em ondas
  * diferentes normalmente. Quando uma onda tem mais rotas do que gente
- * elegível, o excedente fica em "rotasNaoPreenchidas" em vez de duplicar
- * alguém de forma irreal.
+ * elegível, o excedente fica com colaborador vazio (editável na tela).
  */
-export function sortearExpedicao(ondas: OndaRotas[], pool: Employee[]): SorteioResultado {
-  const porColaborador = new Map<string, SorteioRow>()
-  const rotasNaoPreenchidas: RotaNaoPreenchida[] = []
+export function sortearExpedicao(ondas: OndaRotas[], pool: Employee[]): Assignment[] {
+  const assignments: Assignment[] = []
 
   for (const { onda, rotas } of ondas) {
     const shuffled = shuffle(pool)
-
     rotas.forEach((rota, index) => {
       const employee = shuffled[index]
-      if (!employee) {
-        rotasNaoPreenchidas.push({ onda, rota })
-        return
-      }
-
-      const row = porColaborador.get(employee.id) ?? {
-        vaga: 0,
-        colaborador: employee.name,
-        employeeId: employee.id,
-        rotasPorOnda: {},
-      }
-      row.rotasPorOnda[onda] = rota
-      porColaborador.set(employee.id, row)
+      assignments.push({ onda, rota, colaborador: employee?.name ?? '' })
     })
   }
 
-  const rows = Array.from(porColaborador.values())
-    .sort((a, b) => a.colaborador.localeCompare(b.colaborador))
-    .map((row, index) => ({ ...row, vaga: index + 1 }))
-
-  return { rows, rotasNaoPreenchidas }
+  return assignments
 }

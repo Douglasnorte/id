@@ -162,20 +162,22 @@ Pages) já é servido em HTTPS.
 
 ## Expedição — sorteio de vagas e rotas por onda
 
-Na aba **Expedição**, suba um arquivo `.txt` com as ondas e rotas do dia
-(um modelo pode ser baixado direto na tela) no formato:
+Na aba **Expedição**, cole as ondas e rotas do dia direto na caixa de texto
+e clique em **Carregar ondas e rotas**. O formato mais prático é colar direto
+de uma planilha, duas colunas — onda e rota — separadas por tab, vírgula ou
+`;`, uma rota por linha:
 
 ```
-ONDA 1
-A1_PM1
-A2_PM1
-B1_PM1
-
-ONDA 2
-A1_PM1
-A2_PM1
-C1_PM1
+1	A1_PM1
+1	A2_PM1
+1	B1_PM1
+2	A1_PM1
+2	A2_PM1
+2	C1_PM1
 ```
+
+(também aceita o formato antigo por seções, com um cabeçalho `ONDA 1` seguido
+de uma rota por linha).
 
 Escolha **Expedição AM** ou **Expedição PM** e clique em **Sortear**:
 - **Expedição PM** sorteia só entre colaboradores do departamento `SVC PM`
@@ -186,11 +188,19 @@ Escolha **Expedição AM** ou **Expedição PM** e clique em **Sortear**:
 O sorteio nunca repete a mesma pessoa dentro da mesma onda (fisicamente não
 dá pra fazer duas rotas ao mesmo tempo), mas a mesma pessoa pode aparecer em
 ondas diferentes normalmente. Se uma onda tiver mais rotas do que gente
-elegível, as rotas que sobrarem aparecem destacadas como não preenchidas em
-vez de duplicar alguém de forma irreal. Dá pra clicar em **Sortear de novo**
-quantas vezes quiser antes de confirmar, e **Baixar PDF** gera a tabela
-final (Vaga / Colaborador / Onda 1 / Onda 2 / ...), no mesmo formato do
-modelo usado pela operação.
+elegível, as rotas que sobrarem ficam com o campo de colaborador vazio.
+
+Depois do sorteio, o **painel de edição** mostra uma linha por rota com onda,
+rota e colaborador, tudo editável — dá pra corrigir uma rota, trocar quem foi
+sorteado ou digitar um nome que nem estava na lista de elegíveis (aparecem
+sugestões de quem bateu ponto hoje, mas o campo aceita texto livre). Um aviso
+aparece se ficar alguma rota sem colaborador, ou se a mesma pessoa acabar
+repetida na mesma onda por causa de uma edição manual. Logo abaixo, a
+**prévia da tabela final** mostra como vai sair no PDF (uma linha por pessoa,
+uma coluna por onda) e atualiza em tempo real conforme você edita. Dá pra
+clicar em **Sortear de novo** quantas vezes quiser antes de confirmar, e
+**Baixar PDF** gera a tabela final (Vaga / Colaborador / Onda 1 / Onda 2 /
+...), no mesmo formato do modelo usado pela operação.
 
 ## Modos de leitura
 
