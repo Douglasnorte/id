@@ -160,6 +160,38 @@ Pages) já é servido em HTTPS.
    app e publica automaticamente em
    `https://<seu-usuario>.github.io/id/`.
 
+## Expedição — sorteio de vagas e rotas por onda
+
+Na aba **Expedição**, suba um arquivo `.txt` com as ondas e rotas do dia
+(um modelo pode ser baixado direto na tela) no formato:
+
+```
+ONDA 1
+A1_PM1
+A2_PM1
+B1_PM1
+
+ONDA 2
+A1_PM1
+A2_PM1
+C1_PM1
+```
+
+Escolha **Expedição AM** ou **Expedição PM** e clique em **Sortear**:
+- **Expedição PM** sorteia só entre colaboradores do departamento `SVC PM`
+  que já bateram o ponto (entrada) hoje.
+- **Expedição AM** sorteia entre `SVC AM` **e** `SVC PM` que bateram o ponto
+  hoje (o turno AM usa também quem é do PM, como pedido).
+
+O sorteio nunca repete a mesma pessoa dentro da mesma onda (fisicamente não
+dá pra fazer duas rotas ao mesmo tempo), mas a mesma pessoa pode aparecer em
+ondas diferentes normalmente. Se uma onda tiver mais rotas do que gente
+elegível, as rotas que sobrarem aparecem destacadas como não preenchidas em
+vez de duplicar alguém de forma irreal. Dá pra clicar em **Sortear de novo**
+quantas vezes quiser antes de confirmar, e **Baixar PDF** gera a tabela
+final (Vaga / Colaborador / Onda 1 / Onda 2 / ...), no mesmo formato do
+modelo usado pela operação.
+
 ## Modos de leitura
 
 - **Leitor 2D / Manual:** um único campo de texto sempre focado. Leitores de
@@ -179,6 +211,7 @@ src/
   components/
     ponto/          -> aba "Registrar ponto" (leitor, câmera, pendências)
     employees/       -> aba "Colaboradores" (cadastro e ativação)
+    expedicao/       -> aba "Expedição" (sorteio de vagas/rotas por onda)
   hooks/              -> acesso a dados (Supabase) e regra de próxima batida
   lib/                -> cliente Supabase, extração do código do crachá, datas
 supabase/schema.sql   -> schema do banco (tabelas + RLS)
