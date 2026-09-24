@@ -1,7 +1,7 @@
 import { jsPDF } from 'jspdf'
 import { autoTable } from 'jspdf-autotable'
 import type { OndaRotas } from './expedicaoTxt'
-import type { SorteioRow } from './expedicaoSorteio'
+import type { SorteioRow } from './expedicaoRows'
 
 export function gerarExpedicaoPdf(turno: 'AM' | 'PM', ondas: OndaRotas[], rows: SorteioRow[]): void {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' })
