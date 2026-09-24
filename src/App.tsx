@@ -78,6 +78,7 @@ export default function App() {
             registerEvent={timeEventsState.registerEvent}
             deleteEvent={timeEventsState.deleteEvent}
             deleteAllToday={timeEventsState.deleteAllToday}
+            setActive={employeesState.setActive}
           />
         )}
         {tab === 'almoco' && (
@@ -90,6 +91,7 @@ export default function App() {
             registerEvent={timeEventsState.registerEvent}
             deleteEvent={timeEventsState.deleteEvent}
             deleteAllToday={timeEventsState.deleteAllToday}
+            setActive={employeesState.setActive}
           />
         )}
         {tab === 'expedicao' && (
