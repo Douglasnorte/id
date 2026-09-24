@@ -25,6 +25,7 @@ interface Props {
   ) => Promise<{ event?: TimeEvent; error?: string }>
   deleteEvent: (eventId: string) => Promise<{ error?: string }>
   deleteAllToday: (category: EventCategory) => Promise<{ error?: string }>
+  setActive: (id: string, active: boolean) => Promise<{ message: string } | null>
 }
 
 const MAX_FEED_ITEMS = 15
@@ -40,6 +41,7 @@ export default function PontoTab({
   registerEvent,
   deleteEvent,
   deleteAllToday,
+  setActive,
 }: Props) {
   const [mode, setMode] = useState<Mode>('leitor')
   const [results, setResults] = useState<ScanResult[]>([])
@@ -64,9 +66,14 @@ export default function PontoTab({
       pushResult({ ok: false, message: `Colaborador não encontrado (LMS ou nome: "${trimmed}")` })
       return
     }
+    let reactivated = false
     if (!employee.active) {
-      pushResult({ ok: false, employeeName: employee.name, message: 'Colaborador inativo' })
-      return
+      const activateErr = await setActive(employee.id, true)
+      if (activateErr) {
+        pushResult({ ok: false, employeeName: employee.name, message: `Não foi possível reativar: ${activateErr.message}` })
+        return
+      }
+      reactivated = true
     }
 
     const { event, error } = await registerEvent(employee, source, category, overrideType ?? undefined)
@@ -79,7 +86,7 @@ export default function PontoTab({
         ok: true,
         employeeName: employee.name,
         eventType: event.event_type,
-        message: 'Registrado com sucesso',
+        message: reactivated ? 'Colaborador reativado e registrado com sucesso' : 'Registrado com sucesso',
       })
     }
   }
