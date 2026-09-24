@@ -74,7 +74,10 @@ export default function ImportLmsUpdate({ employees, onUpdate, onClose }: Props)
         shift_group: r.changes.shift_group,
         shift_label: r.changes.shift_label,
         employment_type: r.changes.employment_type,
-        active: r.changes.active,
+        // "active" é NOT NULL no banco — o upsert valida essa coluna mesmo
+        // quando a linha não muda o status, então sempre manda um valor
+        // real (igual já era feito com "name" pelo mesmo motivo).
+        active: r.changes.active ?? r.employee!.active,
       })),
     )
     setApplying(false)
