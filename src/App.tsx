@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import Login from './components/Login'
 import PontoTab from './components/ponto/PontoTab'
 import EmployeesTab from './components/employees/EmployeesTab'
@@ -7,7 +7,9 @@ import { useEmployees } from './hooks/useEmployees'
 import { useTimeEvents } from './hooks/useTimeEvents'
 import { useShiftCalendar } from './hooks/useShiftCalendar'
 
-type Tab = 'entrada-saida' | 'almoco' | 'colaboradores'
+type Tab = 'entrada-saida' | 'almoco' | 'expedicao' | 'colaboradores'
+
+const ExpedicaoTab = lazy(() => import('./components/expedicao/ExpedicaoTab'))
 
 export default function App() {
   const { session, loading, signIn, signOut } = useAuth()
@@ -48,6 +50,9 @@ export default function App() {
             <TabButton active={tab === 'almoco'} onClick={() => setTab('almoco')}>
               Almoço
             </TabButton>
+            <TabButton active={tab === 'expedicao'} onClick={() => setTab('expedicao')}>
+              Expedição
+            </TabButton>
             <TabButton active={tab === 'colaboradores'} onClick={() => setTab('colaboradores')}>
               Colaboradores
             </TabButton>
@@ -86,6 +91,11 @@ export default function App() {
             deleteEvent={timeEventsState.deleteEvent}
             deleteAllToday={timeEventsState.deleteAllToday}
           />
+        )}
+        {tab === 'expedicao' && (
+          <Suspense fallback={<p className="text-sm text-slate-400">Carregando...</p>}>
+            <ExpedicaoTab employees={employeesState.employees} events={timeEventsState.events} />
+          </Suspense>
         )}
         {tab === 'colaboradores' && (
           <EmployeesTab
