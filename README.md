@@ -163,9 +163,23 @@ Pages) já é servido em HTTPS.
 ## Expedição — sorteio de vagas e rotas por onda
 
 Na aba **Expedição**, cole as ondas e rotas do dia direto na caixa de texto
-e clique em **Carregar ondas e rotas**. O formato mais prático é colar direto
-de uma planilha, duas colunas — onda e rota — separadas por tab, vírgula ou
-`;`, uma rota por linha:
+e clique em **Carregar ondas e rotas**. O formato mais completo é colar direto
+de uma planilha, três colunas — vaga, onda e rota — separadas por tab, vírgula
+ou `;`, uma rota por linha:
+
+```
+1	1	A1_PM1
+1	2	A2_PM1
+2	1	B1_PM1
+2	2	B2_PM1
+3	1	C1_PM1
+```
+
+Repetir a mesma vaga em ondas diferentes (como a vaga 1 acima, presente na
+onda 1 e na onda 2) mantém a **mesma pessoa sorteada nessa posição o dia
+todo**, só mudando a rota conforme a onda. A vaga é opcional: colando só duas
+colunas — onda e rota — a numeração da vaga sai automática (por ordem
+alfabética) e o sorteio passa a ser independente por onda:
 
 ```
 1	A1_PM1
@@ -186,14 +200,16 @@ Escolha **Expedição AM** ou **Expedição PM** e clique em **Sortear**:
   hoje (o turno AM usa também quem é do PM, como pedido).
 
 O sorteio nunca repete a mesma pessoa dentro da mesma onda (fisicamente não
-dá pra fazer duas rotas ao mesmo tempo), mas a mesma pessoa pode aparecer em
-ondas diferentes normalmente. Se uma onda tiver mais rotas do que gente
-elegível, as rotas que sobrarem ficam com o campo de colaborador vazio.
+dá pra fazer duas rotas ao mesmo tempo). Sem vaga explícita, a mesma pessoa
+pode aparecer em ondas diferentes normalmente; com vaga explícita, cada vaga
+recebe uma pessoa fixa para todas as ondas em que aparece. Se sobrar vaga ou
+rota sem gente elegível suficiente, o campo de colaborador fica vazio.
 
-Depois do sorteio, o **painel de edição** mostra uma linha por rota com onda,
-rota e colaborador, tudo editável — dá pra corrigir uma rota, trocar quem foi
-sorteado ou digitar um nome que nem estava na lista de elegíveis (aparecem
-sugestões de quem bateu ponto hoje, mas o campo aceita texto livre). Um aviso
+Depois do sorteio, o **painel de edição** mostra uma linha por rota com vaga,
+onda, rota e colaborador, tudo editável — dá pra corrigir a vaga, a rota,
+trocar quem foi sorteado ou digitar um nome que nem estava na lista de
+elegíveis (aparecem sugestões de quem bateu ponto hoje, mas o campo aceita
+texto livre). Um aviso
 aparece se ficar alguma rota sem colaborador, ou se a mesma pessoa acabar
 repetida na mesma onda por causa de uma edição manual. Logo abaixo, a
 **prévia da tabela final** mostra como vai sair no PDF (uma linha por pessoa,

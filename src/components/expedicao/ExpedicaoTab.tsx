@@ -70,8 +70,18 @@ export default function ExpedicaoTab({ employees, events }: Props) {
     setAssignments(sortearExpedicao(ondas, pool))
   }
 
-  function updateAssignmentAt(index: number, field: 'rota' | 'colaborador', value: string) {
-    setAssignments((prev) => (prev ? prev.map((a, i) => (i === index ? { ...a, [field]: value } : a)) : prev))
+  function updateAssignmentAt(index: number, field: 'vaga' | 'rota' | 'colaborador', value: string) {
+    setAssignments((prev) => {
+      if (!prev) return prev
+      return prev.map((a, i) => {
+        if (i !== index) return a
+        if (field === 'vaga') {
+          const parsed = value.trim() === '' ? null : Number(value)
+          return { ...a, vaga: parsed != null && Number.isNaN(parsed) ? a.vaga : parsed }
+        }
+        return { ...a, [field]: value }
+      })
+    })
   }
 
   function handleBaixarPdf() {
@@ -113,10 +123,12 @@ export default function ExpedicaoTab({ employees, events }: Props) {
           </span>
         </div>
 
-        <label className="mb-1 block text-sm font-medium text-slate-700">Ondas e rotas</label>
+        <label className="mb-1 block text-sm font-medium text-slate-700">Vagas, ondas e rotas</label>
         <p className="mb-2 text-xs text-slate-500">
-          Cole aqui direto de uma planilha: duas colunas, onda e rota (separadas por tab, vírgula ou ";"), uma
-          linha por rota.
+          Cole aqui direto de uma planilha: três colunas, vaga, onda e rota (separadas por tab, vírgula ou ";"),
+          uma linha por rota. Repetir a mesma vaga em ondas diferentes mantém a mesma pessoa sorteada nessa
+          posição o dia todo, só mudando a rota. A vaga é opcional — colando só onda e rota, a numeração sai
+          automática e o sorteio volta a ser independente por onda.
         </p>
         <textarea
           value={texto}
@@ -207,6 +219,7 @@ export default function ExpedicaoTab({ employees, events }: Props) {
             <table className="w-full text-sm">
               <thead className="text-left text-xs uppercase text-slate-400">
                 <tr>
+                  <th className="pb-2 pr-3">Vaga</th>
                   <th className="pb-2 pr-3">Onda</th>
                   <th className="pb-2 pr-3">Rota</th>
                   <th className="pb-2 pr-3">Colaborador</th>
@@ -215,6 +228,16 @@ export default function ExpedicaoTab({ employees, events }: Props) {
               <tbody className="divide-y divide-slate-100">
                 {assignments.map((a, index) => (
                   <tr key={`${a.onda}-${index}`}>
+                    <td className="py-1.5 pr-3">
+                      <input
+                        type="number"
+                        min={1}
+                        value={a.vaga ?? ''}
+                        onChange={(e) => updateAssignmentAt(index, 'vaga', e.target.value)}
+                        placeholder="auto"
+                        className="input w-20 py-1"
+                      />
+                    </td>
                     <td className="py-1.5 pr-3 text-slate-500">{a.onda}</td>
                     <td className="py-1.5 pr-3">
                       <input
