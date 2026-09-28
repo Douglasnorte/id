@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import type { Employee, TimeEvent } from '../../types'
 import { expedicaoTxtTemplate, parseExpedicaoTxt, OndaRotas } from '../../lib/expedicaoTxt'
 import { sortearExpedicao, Assignment } from '../../lib/expedicaoSorteio'
@@ -70,14 +70,15 @@ export default function ExpedicaoTab({ employees, events }: Props) {
     setAssignments(sortearExpedicao(ondas, pool))
   }
 
-  function updateAssignmentAt(index: number, field: 'vaga' | 'rota' | 'colaborador', value: string) {
+  function updateAssignmentAt(index: number, field: 'vaga' | 'rota' | 'sacas' | 'colaborador', value: string) {
     setAssignments((prev) => {
       if (!prev) return prev
       return prev.map((a, i) => {
         if (i !== index) return a
-        if (field === 'vaga') {
+        if (field === 'vaga' || field === 'sacas') {
           const parsed = value.trim() === '' ? null : Number(value)
-          return { ...a, vaga: parsed != null && Number.isNaN(parsed) ? a.vaga : parsed }
+          const valido = parsed == null || !Number.isNaN(parsed)
+          return { ...a, [field]: valido ? parsed : a[field] }
         }
         return { ...a, [field]: value }
       })
@@ -123,12 +124,14 @@ export default function ExpedicaoTab({ employees, events }: Props) {
           </span>
         </div>
 
-        <label className="mb-1 block text-sm font-medium text-slate-700">Vagas, ondas e rotas</label>
+        <label className="mb-1 block text-sm font-medium text-slate-700">Vagas, ondas, rotas e sacas</label>
         <p className="mb-2 text-xs text-slate-500">
-          Cole aqui direto de uma planilha: três colunas, vaga, onda e rota (separadas por tab, vírgula ou ";"),
-          uma linha por rota. Repetir a mesma vaga em ondas diferentes mantém a mesma pessoa sorteada nessa
-          posição o dia todo, só mudando a rota. A vaga é opcional — colando só onda e rota, a numeração sai
-          automática e o sorteio volta a ser independente por onda.
+          Cole aqui direto de uma planilha: vaga, onda, rota e sacas (separadas por tab, vírgula ou ";"), uma
+          linha por rota. Repetir a mesma vaga em ondas diferentes mantém a mesma pessoa sorteada nessa posição
+          o dia todo, só mudando a rota. A quantidade de sacas é opcional e por linha — só aparece número na
+          tabela final onde você informar, o resto fica em branco. A vaga também é opcional: colando só onda e
+          rota, a numeração sai automática e o sorteio volta a ser independente por onda (sem coluna de sacas
+          nesse caso).
         </p>
         <textarea
           value={texto}
@@ -222,6 +225,7 @@ export default function ExpedicaoTab({ employees, events }: Props) {
                   <th className="pb-2 pr-3">Vaga</th>
                   <th className="pb-2 pr-3">Onda</th>
                   <th className="pb-2 pr-3">Rota</th>
+                  <th className="pb-2 pr-3">Sacas</th>
                   <th className="pb-2 pr-3">Colaborador</th>
                 </tr>
               </thead>
@@ -248,6 +252,16 @@ export default function ExpedicaoTab({ employees, events }: Props) {
                     </td>
                     <td className="py-1.5 pr-3">
                       <input
+                        type="number"
+                        min={0}
+                        value={a.sacas ?? ''}
+                        onChange={(e) => updateAssignmentAt(index, 'sacas', e.target.value)}
+                        placeholder="—"
+                        className="input w-20 py-1"
+                      />
+                    </td>
+                    <td className="py-1.5 pr-3">
+                      <input
                         list="expedicao-nomes"
                         value={a.colaborador}
                         onChange={(e) => updateAssignmentAt(index, 'colaborador', e.target.value)}
@@ -269,9 +283,10 @@ export default function ExpedicaoTab({ employees, events }: Props) {
                   <th className="pb-2 pr-3">Vaga</th>
                   <th className="pb-2 pr-3">Colaborador</th>
                   {ondas.map((o) => (
-                    <th key={o.onda} className="pb-2 pr-3 text-center">
-                      Onda {o.onda}
-                    </th>
+                    <Fragment key={o.onda}>
+                      <th className="pb-2 pr-3 text-center">Onda {o.onda}</th>
+                      <th className="pb-2 pr-3 text-center">Sacas {o.onda}</th>
+                    </Fragment>
                   ))}
                 </tr>
               </thead>
@@ -281,9 +296,10 @@ export default function ExpedicaoTab({ employees, events }: Props) {
                     <td className="py-1.5 pr-3 text-slate-400">{row.vaga}</td>
                     <td className="py-1.5 pr-3 font-medium text-slate-800">{row.colaborador}</td>
                     {ondas.map((o) => (
-                      <td key={o.onda} className="py-1.5 pr-3 text-center text-slate-600">
-                        {row.rotasPorOnda[o.onda] ?? '—'}
-                      </td>
+                      <Fragment key={o.onda}>
+                        <td className="py-1.5 pr-3 text-center text-slate-600">{row.rotasPorOnda[o.onda] ?? '—'}</td>
+                        <td className="py-1.5 pr-3 text-center text-slate-600">{row.sacasPorOnda[o.onda] ?? '—'}</td>
+                      </Fragment>
                     ))}
                   </tr>
                 ))}

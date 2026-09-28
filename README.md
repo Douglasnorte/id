@@ -164,22 +164,25 @@ Pages) já é servido em HTTPS.
 
 Na aba **Expedição**, cole as ondas e rotas do dia direto na caixa de texto
 e clique em **Carregar ondas e rotas**. O formato mais completo é colar direto
-de uma planilha, três colunas — vaga, onda e rota — separadas por tab, vírgula
-ou `;`, uma rota por linha:
+de uma planilha, quatro colunas — vaga, onda, rota e sacas — separadas por
+tab, vírgula ou `;`, uma rota por linha:
 
 ```
-1	1	A1_PM1
+1	1	A1_PM1	50
 1	2	A2_PM1
-2	1	B1_PM1
+2	1	B1_PM1	30
 2	2	B2_PM1
 3	1	C1_PM1
 ```
 
 Repetir a mesma vaga em ondas diferentes (como a vaga 1 acima, presente na
 onda 1 e na onda 2) mantém a **mesma pessoa sorteada nessa posição o dia
-todo**, só mudando a rota conforme a onda. A vaga é opcional: colando só duas
-colunas — onda e rota — a numeração da vaga sai automática (por ordem
-alfabética) e o sorteio passa a ser independente por onda:
+todo**, só mudando a rota conforme a onda. A coluna de **sacas** (4ª coluna)
+é opcional e por linha: só aparece um número na tabela final onde ela foi
+informada — as demais linhas ficam com o campo em branco. A vaga também é
+opcional: colando só duas colunas — onda e rota — a numeração da vaga sai
+automática (por ordem alfabética), o sorteio passa a ser independente por
+onda, e não tem coluna de sacas nesse formato:
 
 ```
 1	A1_PM1
@@ -206,10 +209,11 @@ recebe uma pessoa fixa para todas as ondas em que aparece. Se sobrar vaga ou
 rota sem gente elegível suficiente, o campo de colaborador fica vazio.
 
 Depois do sorteio, o **painel de edição** mostra uma linha por rota com vaga,
-onda, rota e colaborador, tudo editável — dá pra corrigir a vaga, a rota,
-trocar quem foi sorteado ou digitar um nome que nem estava na lista de
-elegíveis (aparecem sugestões de quem bateu ponto hoje, mas o campo aceita
-texto livre). Um aviso
+onda, rota, sacas e colaborador, tudo editável — dá pra corrigir a vaga, a
+rota, a quantidade de sacas, trocar quem foi sorteado ou digitar um nome que
+nem estava na lista de elegíveis (aparecem sugestões de quem bateu ponto
+hoje, mas o campo aceita texto livre). A **prévia da tabela final** e o PDF
+mostram uma coluna de sacas ao lado de cada onda. Um aviso
 aparece se ficar alguma rota sem colaborador, ou se a mesma pessoa acabar
 repetida na mesma onda por causa de uma edição manual. Logo abaixo, a
 **prévia da tabela final** mostra como vai sair no PDF (uma linha por pessoa,

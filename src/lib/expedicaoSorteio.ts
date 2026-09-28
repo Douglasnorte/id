@@ -5,6 +5,7 @@ export interface Assignment {
   vaga: number | null
   onda: number
   rota: string
+  sacas: number | null
   colaborador: string
 }
 
@@ -23,13 +24,15 @@ function shuffle<T>(items: T[]): T[] {
  * posição física o dia todo, só muda a rota). Linhas sem vaga caem no
  * sorteio antigo: independente por onda, nunca repete ninguém dentro da
  * mesma onda, mas pode repetir entre ondas diferentes. Quando falta gente
- * pra alguma vaga/rota, o colaborador fica vazio (editável na tela).
+ * pra alguma vaga/rota, o colaborador fica vazio (editável na tela). A
+ * quantidade de sacas (quando informada no texto colado) só é carregada
+ * junto, sem influenciar o sorteio.
  */
 export function sortearExpedicao(ondas: OndaRotas[], pool: Employee[]): Assignment[] {
-  type Item = { vaga: number | null; onda: number; rota: string }
+  type Item = { vaga: number | null; onda: number; rota: string; sacas: number | null }
   const items: Item[] = []
   for (const { onda, rotas } of ondas) {
-    for (const r of rotas) items.push({ vaga: r.vaga, onda, rota: r.rota })
+    for (const r of rotas) items.push({ vaga: r.vaga, onda, rota: r.rota, sacas: r.sacas })
   }
 
   const vagasUnicas = Array.from(new Set(items.filter((i) => i.vaga != null).map((i) => i.vaga as number))).sort(
@@ -48,6 +51,7 @@ export function sortearExpedicao(ondas: OndaRotas[], pool: Employee[]): Assignme
         vaga: item.vaga,
         onda: item.onda,
         rota: item.rota,
+        sacas: item.sacas,
         colaborador: colaboradorPorVaga.get(item.vaga) ?? '',
       }
     }
@@ -55,6 +59,6 @@ export function sortearExpedicao(ondas: OndaRotas[], pool: Employee[]): Assignme
     const index = indicePorOnda.get(item.onda) ?? 0
     indicePorOnda.set(item.onda, index + 1)
     const colaborador = shuffledPorOnda.get(item.onda)![index]?.name ?? ''
-    return { vaga: null, onda: item.onda, rota: item.rota, colaborador }
+    return { vaga: null, onda: item.onda, rota: item.rota, sacas: item.sacas, colaborador }
   })
 }
