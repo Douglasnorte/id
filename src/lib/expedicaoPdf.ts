@@ -17,11 +17,11 @@ export function gerarExpedicaoPdf(turno: 'AM' | 'PM', ondas: OndaRotas[], rows: 
   doc.setFont('helvetica', 'normal')
   doc.text(`Gaiolas por onda: ${gaiolas} — "-" = sem gaiola na onda`, 40, 56)
 
-  const head = [['VAGA', 'COLABORADOR', ...ondas.map((o) => `ONDA ${o.onda}`)]]
+  const head = [['VAGA', 'COLABORADOR', ...ondas.flatMap((o) => [`ONDA ${o.onda}`, `SACAS ${o.onda}`])]]
   const body = rows.map((row) => [
     String(row.vaga),
     row.colaborador,
-    ...ondas.map((o) => row.rotasPorOnda[o.onda] ?? '-'),
+    ...ondas.flatMap((o) => [row.rotasPorOnda[o.onda] ?? '-', row.sacasPorOnda[o.onda] != null ? String(row.sacasPorOnda[o.onda]) : '-']),
   ])
 
   autoTable(doc, {
