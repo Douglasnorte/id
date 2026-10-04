@@ -114,6 +114,23 @@ export default function PendingList({ category, employees, eventsFor, isOffToday
     return rows.filter((r) => r.employee.name.toLowerCase().includes(term))
   }, [rows, search])
 
+  const escalasDoDia = useMemo(() => {
+    const porDepartamento = new Map<string, Set<string>>()
+    for (const e of employees) {
+      if (!e.active || !e.department || !e.shift_group) continue
+      if (deptFilter !== 'all' && e.department !== deptFilter) continue
+      if (isOffToday(e.department, e.shift_group)) continue
+      if (!porDepartamento.has(e.department)) porDepartamento.set(e.department, new Set())
+      porDepartamento.get(e.department)!.add(e.shift_group)
+    }
+    return Array.from(porDepartamento.entries())
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([department, escalas]) => ({
+        department,
+        escalas: Array.from(escalas).sort((a, b) => a.localeCompare(b)),
+      }))
+  }, [employees, isOffToday, deptFilter])
+
   return (
     <div className="rounded-2xl bg-white p-5 shadow-sm">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
@@ -144,11 +161,22 @@ export default function PendingList({ category, employees, eventsFor, isOffToday
       </div>
 
       <div className={`mb-4 grid grid-cols-2 gap-2 ${isLunch ? 'sm:grid-cols-5' : 'sm:grid-cols-4'}`}>
-        <StatBox label={meta.notArrived} value={counts.notArrived} />
-        <StatBox label={meta.in} value={counts.in} />
-        <StatBox label={meta.done} value={counts.done} />
-        <StatBox label={meta.off} value={counts.off} />
-        {isLunch && <StatBox label="Acima de 1h" value={counts.overLimit} warn={counts.overLimit > 0} />}
+        {isLunch ? (
+          <>
+            <StatBox label={meta.notArrived} value={counts.notArrived} />
+            <StatBox label={meta.in} value={counts.in} />
+            <StatBox label={meta.done} value={counts.done} />
+            <StatBox label={meta.off} value={counts.off} />
+            <StatBox label="Acima de 1h" value={counts.overLimit} warn={counts.overLimit > 0} />
+          </>
+        ) : (
+          <>
+            <StatBox label="Presente" value={counts.in} />
+            <StatBox label="Entrada" value={counts.in + counts.done} />
+            <StatBox label="Saída" value={counts.done} />
+            <EscalasDoDiaBox grupos={escalasDoDia} />
+          </>
+        )}
       </div>
 
       <div className="max-h-96 overflow-y-auto">
@@ -227,6 +255,27 @@ function StatBox({ label, value, warn }: { label: string; value: number; warn?: 
     <div className={`rounded-xl px-3 py-2 text-center ${warn ? 'bg-red-50' : 'bg-slate-50'}`}>
       <div className={`text-lg font-semibold ${warn ? 'text-red-600' : 'text-slate-800'}`}>{value}</div>
       <div className={`text-xs ${warn ? 'text-red-500' : 'text-slate-500'}`}>{label}</div>
+    </div>
+  )
+}
+
+/** Mostra quais escalas (por departamento) estão escaladas pra trabalhar
+ * hoje — ou seja, ativas e sem DSR no calendário de hoje. */
+function EscalasDoDiaBox({ grupos }: { grupos: { department: string; escalas: string[] }[] }) {
+  return (
+    <div className="rounded-xl bg-slate-50 px-3 py-2">
+      <div className="text-center text-xs text-slate-500">Escalas do dia</div>
+      <div className="mt-1 space-y-0.5">
+        {grupos.length === 0 ? (
+          <div className="text-center text-xs text-slate-400">—</div>
+        ) : (
+          grupos.map((g) => (
+            <div key={g.department} className="truncate text-xs text-slate-700" title={`${g.department}: ${g.escalas.join(', ')}`}>
+              <span className="font-medium">{g.department}:</span> {g.escalas.join(', ')}
+            </div>
+          ))
+        )}
+      </div>
     </div>
   )
 }
