@@ -65,10 +65,13 @@ export function resolveHeaderAliases(headers: string[]): Record<string, keyof Em
 }
 
 export function csvTemplate(): string {
-  return Papa.unparse({
-    fields: ['lms', 'nome', 'departamento', 'cargo', 'escala', 'descricao escala', 'tipo', 'observacoes'],
-    data: [['12345', 'Maria da Silva', 'SVC AM', 'Operadora', 'A', '5x2 - 01:30 as 10:48', 'Efetivo', '']],
-  })
+  return Papa.unparse(
+    {
+      fields: ['lms', 'nome', 'departamento', 'cargo', 'escala', 'descricao escala', 'tipo', 'observacoes'],
+      data: [['12345', 'Maria da Silva', 'SVC AM', 'Operadora', 'A', '5x2 - 01:30 as 10:48', 'Efetivo', '']],
+    },
+    { delimiter: ';' },
+  )
 }
 
 export function parseEmployeesCsv(csvText: string, existing: Employee[]): ParsedRow[] {

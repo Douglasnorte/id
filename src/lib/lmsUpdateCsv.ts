@@ -249,11 +249,14 @@ export function parseLmsUpdateCsv(csvText: string, employees: Employee[]): Parse
 }
 
 export function lmsUpdateCsvTemplate(): string {
-  return Papa.unparse({
-    fields: ['nome', 'lms', 'departamento', 'cargo', 'escala', 'descricao escala', 'tipo'],
-    data: [
-      ['Maria da Silva', '12345', 'SVC AM', 'Operadora', 'A', '5x2 - 01:30 as 10:48', 'Efetivo'],
-      ['Joao Souza', '', '', '', '-', '', ''],
-    ],
-  })
+  return Papa.unparse(
+    {
+      fields: ['nome', 'lms', 'departamento', 'cargo', 'escala', 'descricao escala', 'tipo'],
+      data: [
+        ['Maria da Silva', '12345', 'SVC AM', 'Operadora', 'A', '5x2 - 01:30 as 10:48', 'Efetivo'],
+        ['Joao Souza', '', '', '', '-', '', ''],
+      ],
+    },
+    { delimiter: ';' },
+  )
 }

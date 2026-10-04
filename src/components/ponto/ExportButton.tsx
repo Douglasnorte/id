@@ -231,10 +231,13 @@ export default function ExportButton({ category, employees, isOffToday }: Props)
 
     const events = data ?? []
 
+    // Ponto-e-vírgula em vez de vírgula: é o separador que o Excel em
+    // português espera ao abrir um CSV direto (vírgula vira só uma coluna
+    // só); o Google Sheets detecta qualquer um dos dois normalmente.
     const csv =
       category === 'lunch'
-        ? Papa.unparse(buildLunchRows(events, includeMissing, employees, isOffToday, start, end))
-        : Papa.unparse(buildShiftRows(events, includeMissing, employees, isOffToday, start, end))
+        ? Papa.unparse(buildLunchRows(events, includeMissing, employees, isOffToday, start, end), { delimiter: ';' })
+        : Papa.unparse(buildShiftRows(events, includeMissing, employees, isOffToday, start, end), { delimiter: ';' })
 
     const label = category === 'lunch' ? 'almoco' : 'entrada-saida'
     downloadTextFile(`${label}-${start}_a_${end}.csv`, csv)

@@ -48,13 +48,16 @@ function parseBoolean(raw: string): boolean {
 }
 
 export function shiftCalendarCsvTemplate(): string {
-  return Papa.unparse({
-    fields: ['data', 'departamento', 'escala', 'dsr'],
-    data: [
-      ['31/08/2026', 'SVC AM', 'A', 'sim'],
-      ['31/08/2026', 'SVC AM', 'B', 'nao'],
-    ],
-  })
+  return Papa.unparse(
+    {
+      fields: ['data', 'departamento', 'escala', 'dsr'],
+      data: [
+        ['31/08/2026', 'SVC AM', 'A', 'sim'],
+        ['31/08/2026', 'SVC AM', 'B', 'nao'],
+      ],
+    },
+    { delimiter: ';' },
+  )
 }
 
 export function parseShiftCalendarCsv(csvText: string): ParsedCalendarRow[] {
