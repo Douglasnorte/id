@@ -114,12 +114,12 @@ export default function PendingList({ category, employees, eventsFor, isOffToday
     return rows.filter((r) => r.employee.name.toLowerCase().includes(term))
   }, [rows, search])
 
-  const escalasDoDia = useMemo(() => {
+  const escalaDeFolga = useMemo(() => {
     const porDepartamento = new Map<string, Set<string>>()
     for (const e of employees) {
       if (!e.active || !e.department || !e.shift_group) continue
       if (deptFilter !== 'all' && e.department !== deptFilter) continue
-      if (isOffToday(e.department, e.shift_group)) continue
+      if (!isOffToday(e.department, e.shift_group)) continue
       if (!porDepartamento.has(e.department)) porDepartamento.set(e.department, new Set())
       porDepartamento.get(e.department)!.add(e.shift_group)
     }
@@ -160,24 +160,24 @@ export default function PendingList({ category, employees, eventsFor, isOffToday
         </div>
       </div>
 
-      <div className={`mb-4 grid grid-cols-2 gap-2 ${isLunch ? 'sm:grid-cols-5' : 'sm:grid-cols-4'}`}>
-        {isLunch ? (
-          <>
-            <StatBox label={meta.notArrived} value={counts.notArrived} />
-            <StatBox label={meta.in} value={counts.in} />
-            <StatBox label={meta.done} value={counts.done} />
-            <StatBox label={meta.off} value={counts.off} />
-            <StatBox label="Acima de 1h" value={counts.overLimit} warn={counts.overLimit > 0} />
-          </>
-        ) : (
-          <>
+      {isLunch ? (
+        <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-5">
+          <StatBox label={meta.notArrived} value={counts.notArrived} />
+          <StatBox label={meta.in} value={counts.in} />
+          <StatBox label={meta.done} value={counts.done} />
+          <StatBox label={meta.off} value={counts.off} />
+          <StatBox label="Acima de 1h" value={counts.overLimit} warn={counts.overLimit > 0} />
+        </div>
+      ) : (
+        <div className="mb-4 space-y-2">
+          <div className="grid grid-cols-3 gap-2">
             <StatBox label="Presente" value={counts.in} />
             <StatBox label="Entrada" value={counts.in + counts.done} />
             <StatBox label="Saída" value={counts.done} />
-            <EscalasDoDiaBox grupos={escalasDoDia} />
-          </>
-        )}
-      </div>
+          </div>
+          <EscalaDeFolgaBox grupos={escalaDeFolga} />
+        </div>
+      )}
 
       <div className="max-h-96 overflow-y-auto">
         <table className="w-full text-sm">
@@ -259,23 +259,32 @@ function StatBox({ label, value, warn }: { label: string; value: number; warn?: 
   )
 }
 
-/** Mostra quais escalas (por departamento) estão escaladas pra trabalhar
- * hoje — ou seja, ativas e sem DSR no calendário de hoje. */
-function EscalasDoDiaBox({ grupos }: { grupos: { department: string; escalas: string[] }[] }) {
+/** Mostra quais escalas (por departamento) estão de folga (DSR) hoje. */
+function EscalaDeFolgaBox({ grupos }: { grupos: { department: string; escalas: string[] }[] }) {
   return (
-    <div className="rounded-xl bg-slate-50 px-3 py-2">
-      <div className="text-center text-xs text-slate-500">Escalas do dia</div>
-      <div className="mt-1 space-y-0.5">
-        {grupos.length === 0 ? (
-          <div className="text-center text-xs text-slate-400">—</div>
-        ) : (
-          grupos.map((g) => (
-            <div key={g.department} className="truncate text-xs text-slate-700" title={`${g.department}: ${g.escalas.join(', ')}`}>
-              <span className="font-medium">{g.department}:</span> {g.escalas.join(', ')}
+    <div className="rounded-xl bg-sky-50 px-4 py-3">
+      <div className="text-xs font-semibold uppercase tracking-wide text-sky-700">Escala de folga</div>
+      {grupos.length === 0 ? (
+        <div className="mt-1.5 text-sm text-sky-900/60">Ninguém de folga hoje</div>
+      ) : (
+        <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2">
+          {grupos.map((g) => (
+            <div key={g.department} className="flex items-center gap-1.5">
+              <span className="text-xs font-medium text-slate-500">{g.department}</span>
+              <div className="flex flex-wrap gap-1">
+                {g.escalas.map((esc) => (
+                  <span
+                    key={esc}
+                    className="rounded-full bg-sky-100 px-2 py-0.5 text-xs font-semibold text-sky-700"
+                  >
+                    {esc}
+                  </span>
+                ))}
+              </div>
             </div>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
