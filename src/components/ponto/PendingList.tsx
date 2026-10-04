@@ -65,14 +65,17 @@ export default function PendingList({ category, employees, eventsFor, isOffToday
     return () => clearInterval(id)
   }, [isLunch])
 
+  const activeEmployees = useMemo(() => {
+    return employees.filter((e) => e.active).filter((e) => deptFilter === 'all' || e.department === deptFilter)
+  }, [employees, deptFilter])
+
   const rows = useMemo(() => {
-    return employees
-      .filter((e) => e.active)
-      .filter((e) => deptFilter === 'all' || e.department === deptFilter)
+    return activeEmployees
       .map((employee) => {
         const events = eventsFor(employee.id)
         const firstEvent = events.find((e) => e.event_type === firstType) ?? null
         const secondEvent = events.find((e) => e.event_type === secondType) ?? null
+        const hasCheckedIn = events.some((e) => e.event_type === 'check_in')
 
         let statusKey: StatusKey = !firstEvent ? 'notArrived' : !secondEvent ? 'in' : 'done'
         if (statusKey === 'notArrived' && isOffToday(employee.department, employee.shift_group)) {
@@ -86,8 +89,11 @@ export default function PendingList({ category, employees, eventsFor, isOffToday
             : null
         const overLimit = durationMs !== null && durationMs >= LUNCH_LIMIT_MS
 
-        return { employee, statusKey, lastEvent, durationMs, overLimit }
+        return { employee, statusKey, lastEvent, durationMs, overLimit, hasCheckedIn }
       })
+      // No almoço, "Não saiu" só faz sentido pra quem já bateu entrada hoje —
+      // quem ainda nem chegou não entra na contagem nem na lista.
+      .filter((r) => !isLunch || r.hasCheckedIn)
       .sort((a, b) => {
         if (a.statusKey !== b.statusKey) {
           const order: StatusKey[] = ['in', 'notArrived', 'done', 'off']
@@ -95,18 +101,18 @@ export default function PendingList({ category, employees, eventsFor, isOffToday
         }
         return a.employee.name.localeCompare(b.employee.name)
       })
-  }, [employees, eventsFor, firstType, secondType, isLunch, now, isOffToday, deptFilter])
+  }, [activeEmployees, eventsFor, firstType, secondType, isLunch, now, isOffToday])
 
   const counts = useMemo(() => {
     return {
-      total: rows.length,
+      total: activeEmployees.length,
       notArrived: rows.filter((r) => r.statusKey === 'notArrived').length,
       in: rows.filter((r) => r.statusKey === 'in').length,
       done: rows.filter((r) => r.statusKey === 'done').length,
       off: rows.filter((r) => r.statusKey === 'off').length,
       overLimit: rows.filter((r) => r.statusKey === 'in' && r.overLimit).length,
     }
-  }, [rows])
+  }, [rows, activeEmployees])
 
   const visibleRows = useMemo(() => {
     const term = search.trim().toLowerCase()
@@ -161,11 +167,10 @@ export default function PendingList({ category, employees, eventsFor, isOffToday
       </div>
 
       {isLunch ? (
-        <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-5">
+        <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
           <StatBox label={meta.notArrived} value={counts.notArrived} />
           <StatBox label={meta.in} value={counts.in} />
           <StatBox label={meta.done} value={counts.done} />
-          <StatBox label={meta.off} value={counts.off} />
           <StatBox label="Acima de 1h" value={counts.overLimit} warn={counts.overLimit > 0} />
         </div>
       ) : (
@@ -239,7 +244,11 @@ export default function PendingList({ category, employees, eventsFor, isOffToday
             {visibleRows.length === 0 && (
               <tr>
                 <td colSpan={isLunch ? 5 : 4} className="py-6 text-center text-slate-400">
-                  {rows.length === 0 ? 'Nenhum colaborador ativo cadastrado.' : 'Nenhum colaborador encontrado.'}
+                  {activeEmployees.length === 0
+                    ? 'Nenhum colaborador ativo cadastrado.'
+                    : rows.length === 0
+                      ? 'Ninguém bateu entrada ainda hoje.'
+                      : 'Nenhum colaborador encontrado.'}
                 </td>
               </tr>
             )}
