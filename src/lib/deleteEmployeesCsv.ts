@@ -86,8 +86,11 @@ export function parseDeleteEmployeesCsv(csvText: string, employees: Employee[]):
 }
 
 export function deleteEmployeesCsvTemplate(): string {
-  return Papa.unparse({
-    fields: ['nome'],
-    data: [['Maria da Silva']],
-  })
+  return Papa.unparse(
+    {
+      fields: ['nome'],
+      data: [['Maria da Silva']],
+    },
+    { delimiter: ';' },
+  )
 }
